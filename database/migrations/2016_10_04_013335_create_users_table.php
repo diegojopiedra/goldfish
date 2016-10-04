@@ -24,10 +24,9 @@ class CreateUsersTable extends Migration
             $table->string('password', 60);
             $table->date('next_update_time');
             $table->boolean('active');  
-            $table->integer('role_id'); 
-            $table->rememberToken();
+            $table->integer('role_id')->unsigned(); 
+            $table->foreign('role_id')->references('id')->on('role');
             $table->timestamps();
-           
         });
     }
 
