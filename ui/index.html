@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+	<meta charset="UTF-8">
+	<title>Biblioteca</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+	<link rel="stylesheet" href="lib/bootstrap/css/bootstrap.min.css">
+	<link rel="stylesheet" href="lib/font-awesome/css/font-awesome.css">
+	<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+	<div id="app">
+		<div class="modal fade" tabindex="-1" role="dialog" id="modal">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<h4 class="modal-title">{{modal.title}}</h4>
+					</div>
+					<div class="modal-body">
+						<p>
+							{{modal.message}}
+						</p>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+						<button type="button" class="btn btn-primary" id="modal-action">{{modal.action}}</button>
+					</div>
+				</div><!-- /.modal-content -->
+			</div><!-- /.modal-dialog -->
+		</div><!-- /.modal -->
+		<nav class="navbar navbar-default">
+			<div class="container-fluid">
+				<!-- Brand and toggle get grouped for better mobile display -->
+				<div class="navbar-header">
+					<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+						<span class="sr-only">Toggle navigation</span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+					</button>
+					<a class="navbar-brand" href="#">Biblioteca</a>
+				</div>
+
+				<!-- Collect the nav links, forms, and other content for toggling -->
+				<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+					<ul class="nav navbar-nav">
+						<li class="active">
+							<router-link to="/prestamos">
+								Prestamos <span class="sr-only">(current)</span>
+							</router-link>
+						</li>
+						<li><a href="#">Usuarios</a></li>
+						<li class="dropdown">
+							<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Activos <span class="caret"></span></a>
+							<ul class="dropdown-menu">
+								<li><a href="#">Equipo audiovisual</a></li>
+								<li><a href="#">Another action</a></li>
+								<li><a href="#">Something else here</a></li>
+								<li role="separator" class="divider"></li>
+								<li><a href="#">Separated link</a></li>
+								<li role="separator" class="divider"></li>
+								<li><a href="#">One more separated link</a></li>
+							</ul>
+						</li>
+					</ul>
+					<ul class="nav navbar-nav navbar-right">
+						<li><a href="#">Link</a></li>
+						<li class="dropdown">
+							<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Dropdown <span class="caret"></span></a>
+							<ul class="dropdown-menu">
+								<li><a href="#">Action</a></li>
+								<li><a href="#">Another action</a></li>
+								<li><a href="#">Something else here</a></li>
+								<li role="separator" class="divider"></li>
+								<li><a href="#">Separated link</a></li>
+							</ul>
+						</li>
+					</ul>
+				</div><!-- /.navbar-collapse -->
+			</div><!-- /.container-fluid -->
+		</nav>
+
+		<div class="col-xs-12 col-sm-4">
+			<div class="well container-fluid">
+				<h4>Usuario</h4>
+				<div>
+					<div class="input-group" v-bind:class="'has-'+[searchUser.state]">
+						<span class="input-group-addon" id="user">
+							<i class="fa fa-user" aria-hidden="true"></i>
+						</span>
+						<input type="text" v-model="identification" id="identification" class="form-control" placeholder="Carnet/Cedula" aria-describedby="user"  v-on:keyup="(searchUser.state != 'default')?searchUser.state = 'default':''" v-on:keyup.enter="getUserData" :disabled="searchUser.disabled">
+ 	 					<span class="input-group-addon" v-if="searchUser.state == 'default'">
+ 	 						<i class="fa fa-search" aria-hidden="true"></i>
+ 	 					</span>
+ 	 					<span class="input-group-addon" v-if="searchUser.state == 'success'">
+ 	 						<i class="fa fa-check" aria-hidden="true"></i>
+ 	 					</span>
+ 	 					<span class="input-group-addon" v-if="searchUser.state == 'warning'">
+ 	 						<i class="fa fa-circle-o-notch fa-spin" aria-hidden="true" ></i>
+ 	 					</span>
+ 	 					<span class="input-group-addon" v-if="searchUser.state == 'error'">
+ 	 						<i class="fa fa-times text-danger" aria-hidden="true" ></i>
+ 	 					</span>
+					</div>
+				</div>
+				<div class="row"> 
+					<div class="col-xs-12">
+						<div class="btn-group pull-right" style="margin-top: 10px;margin-bottom: 10px;">
+							<button class="btn btn-default" v-on:click="clearUser()" :disabled="searchUser.disabled">
+								Limpiar
+							</button>
+							<button class="btn btn-primary" v-on:click="getUserData()" :disabled="searchUser.disabled">
+								Buscar
+							</button>
+						</div>
+					</div>
+				</div>
+				<div v-if="user.id == null" style="font-size: 2em;border: 1px solid #999;border-radius: 6px;" class="text-muted text-center"><i aria-hidden="true" style="font-size: 4em;" class="fa fa-user text-muted"></i> <br>
+					Sin usuario seleccionado
+				</div>
+				<ul v-if="user.id != null" class="list-group">
+				  	<li class="list-group-item">
+						<b class="text-primary">Nombre:</b>
+						{{user.name}} {{user.last_name}}
+				  	</li>
+				  	<li class="list-group-item" v-if="user.student != null">
+						<b class="text-primary">Carné:</b> {{user.student.license}}
+				  	</li>
+				  	<li class="list-group-item">
+						<b class="text-primary">Cedula:</b> {{user.identity_card}}
+				  	</li>
+				</ul>
+			</div>
+		</div>
+		<div class="col-xs-12 col-sm-8">
+			<div class="well container-fluid">
+
+				<h4>Préstamo</h4>
+				<div class="row">
+					<div class="col-xs-12 col-sm-3">
+						<select class="form-control" aria-describedby="type_loan" v-model="auto">
+						  	<option value="true">Automático</option>
+						  	<option value="false">Manual</option>
+						</select>
+					</div>
+					<div class="col-xs-12 col-sm-3">
+						<input type="text" class="form-control" placeholder="Fecha de devolución" aria-describedby="date" :disabled="auto=='true'">
+					</div>
+					<div class="col-xs-12 col-sm-3">
+						<select class="form-control" placeholder="Hora de devolución" aria-describedby="time" :disabled="auto=='true'">
+							<optgroup v-for="n in 12">
+								<option>{{n}}:00</option>
+								<option>{{n}}:30</option>
+							</optgroup>								   	
+						</select>
+					</div>
+					<div class="col-xs-12 col-sm-3">
+						<input type="text" class="form-control" id="barcode" placeholder="Código de barras" aria-describedby="barcode" style="text-transform:uppercase">
+					</div>
+				</div>	
+				<div class="row">
+					<div class="col-xs-12">
+						<button style="margin-top: 10px;" class="btn btn-primary pull-right">
+							Préstamo/Devolución
+						</button>
+					</div>
+				</div>
+			</div>
+			<div class="well container-flud">
+				<h4>Prestamos actuales</h4>
+				<table class="table table-striped">
+					<tr>
+						<th>Código de barras</th>
+						<th>Elemento</th>
+						<th>Prestado el</th>
+						<th>Devolver el</th>
+						<th>Estado</th>
+					</tr>
+					<tr>
+						<td>AU8546</td>
+						<td>Regleta</td>
+						<td>2016-06-21 10:08:13</td>
+						<td>2016-06-21 17:45:00</td>
+						<td>A tiempo</td>
+					</tr>
+					<tr>
+						<td>AU54</td>
+						<td>Laptop</td>
+						<td>2016-06-21 10:09:16</td>
+						<td>2016-06-21 17:45:00</td>
+						<td>A tiempo</td>
+					</tr>
+					<tr>
+						<td>SSDC5541</td>
+						<td>Revista National Geo...</td>
+						<td>2016-06-21 10:10:38</td>
+						<td>2016-07-21 17:45:00</td>
+						<td>A tiempo</td>
+					</tr>
+					<tr>
+						<td>AU6422</td>
+						<td>Video proyector</td>
+						<td>2016-06-20 15:08:13</td>
+						<td>2016-06-20 17:45:00</td>
+						<td>Restrasado</td>
+					</tr>
+				</table>
+			</div>
+		</div>
+		<!-- route outlet -->
+		<!-- component matched by the route will render here -->
+		<router-view></router-view>
+	</div>
+	<!--JavaScript-->
+	<script src="lib/jquery.min.js"></script>
+	<script src="lib/vue.min.js"></script>
+	<script src="lib/vue-router.js"></script>
+	<script src="lib/bootstrap/js/bootstrap.min.js"></script>
+	<script src="js/routes.js"></script>
+</body>
+</html>

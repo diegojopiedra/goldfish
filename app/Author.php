@@ -6,11 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class Author extends Model
 {
-    	    public function article() {
+    	public function article() {
 		return $this->belongsToMany('App\Article');
 		}
 		
-		    	    public function bibliographicMaterial() {
+		public function bibliographicMaterial() {
 		return $this->belongsToMany('App\BibliographicMaterial');
 
 		}

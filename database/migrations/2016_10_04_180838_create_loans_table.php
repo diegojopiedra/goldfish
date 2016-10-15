@@ -16,6 +16,7 @@ class CreateLoansTable extends Migration
             $table->increments('id');
             $table->datetime('departure_time');
             $table->datetime('return_time');
+            $table->datetime('user_return_time');
             $table->integer('user_id')->unsigned();
             $table->integer('authorizing_user_id')->unsigned();
             $table->integer('loanable_id')->unsigned();

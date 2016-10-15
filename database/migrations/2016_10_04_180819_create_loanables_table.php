@@ -16,10 +16,12 @@ class CreateLoanablesTable extends Migration
             $table->increments('id');
             $table->integer('barcode');
             $table->string('note');
+            $table->integer('loan_category_id')->unsigned();
             $table->integer('state_id')->unsigned();
             $table->timestamps();
 
             $table->foreign('state_id')->references('id')->on('states');
+            $table->foreign('loan_category_id')->references('id')->on('loan_categories');
         });
     }
 

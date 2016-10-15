@@ -1,5 +1,5 @@
 <?php
-
+date_default_timezone_set('America/Costa_Rica');
 /**
  * Laravel - A PHP Framework For Web Artisans
  *
