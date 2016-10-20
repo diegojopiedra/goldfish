@@ -32,6 +32,7 @@ Route::resource('three-dimensional-object','ThreeDimensionalObjectController');
 Route::resource('book','BookController');
 Route::get('loan-by-id','LoanController@returnLoanById');
 Route::get('gets', "LoanController@gets");
+Route::resource('borrar/{id}', 'PenaltyController@borrar');
 
 
 Route::post('return-loan', 'LoanController@returnLoan');
