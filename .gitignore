@@ -3,5 +3,4 @@
 Homestead.yaml
 Homestead.json
 .env
-/App/Http/routesModified controllers Cartographic,ThreeDimensional and add controller…  …
-…s PeriodicPublication, CopyPeriodicPublication by Elias.php
+/App/Http/routes.php
