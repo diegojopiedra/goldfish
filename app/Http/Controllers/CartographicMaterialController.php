@@ -42,7 +42,9 @@ class CartographicMaterialController extends Controller
      */
     public function store(Request $request)
     {
-         $bibliographicMaterial = new BibliographicMaterial();
+        DB::beginTransaction();
+        try{
+        $bibliographicMaterial = new BibliographicMaterial();
         $loanable = new Loanable();
         $cartographicMaterial = new CartographicMaterial();
         $cartographicMaterialKeyWord =  new CartographicMaterialKeyWord();     
@@ -68,10 +70,13 @@ class CartographicMaterialController extends Controller
         $cartographicMaterialKeyWord->cartographic_material_id = $cartographicMaterial->id;
         $cartographicMaterialKeyWord->key_word_id = $request->key_word_id;
         $cartographicMaterialKeyWord->save();
-        
+        }catch(\Exception $e){
+            DB::rollback();
+            return 0;
+        }
+        DB::commit();
         return $cartographicMaterial;
     }
-    
     
 
     /**
@@ -105,11 +110,12 @@ class CartographicMaterialController extends Controller
      */
     public function update(Request $request, $id)
     {
+        DB::beginTransaction();
+        try{
         $cartographicMaterial = CartographicMaterial::find($id);
         $bibliographicMaterial = BibliographicMaterial::find($cartographicMaterial->bibliographic_materials_id);
-        $loanable = Loanable::find($bibliographicMaterial->loanable_id);
-        
-        $cartographicMaterialKeyWord =  CartographicMaterialKeyWord::find($cartographicMaterial->id);     
+        $loanable = Loanable::find($bibliographicMaterial->loanable_id);        
+        $cartographicMaterialKeyWord =  CartographicMaterialKeyWord::where('cartographic_material_id',$cartographicMaterial->id)->first();     
        
         $loanable->barcode = $request->barcode;
         $loanable->note = $request->note;
@@ -132,8 +138,11 @@ class CartographicMaterialController extends Controller
         $cartographicMaterialKeyWord->cartographic_material_id = $cartographicMaterial->id;
         $cartographicMaterialKeyWord->key_word_id = $request->key_word_id;
         $cartographicMaterialKeyWord->save();
-        
-        
+        }catch(\Exception $e){
+            DB::rollback();
+            return 0;
+        }
+        DB::commit();
         return $cartographicMaterial;
     }
 
@@ -145,6 +154,8 @@ class CartographicMaterialController extends Controller
      */
     public function destroy($id)
     {
+        DB::beginTransaction();
+        try{
         $cartographicMaterial = CartographicMaterial::find($id);
         $id_bibliographicMaterial = $cartographicMaterial->bibliographic_materials_id;
         $bibliographicMaterial = BibliographicMaterial::find($id_bibliographicMaterial);
@@ -152,15 +163,115 @@ class CartographicMaterialController extends Controller
               
         DB::table('cartographic_material_key_words')->where('cartographic_material_id', $cartographicMaterial->id)->delete();
         
-        $del1 = CartographicMaterial::destroy($id);
-        $del2 = BibliographicMaterial::destroy($id_bibliographicMaterial);
-        $del3 = Loanable::destroy($id_loanable);
-		if($del1==true && $del2==true && $del3==true) {
-		return 1;
-		}
-		return 0;
+        CartographicMaterial::destroy($id);
+        BibliographicMaterial::destroy($id_bibliographicMaterial);
+        Loanable::destroy($id_loanable);
+        }catch(\Exception $e){
+            DB::rollback();
+            return 0;
+        }
+        DB::commit();
+        return 1;
     }
     
+    
+    /*public function testStore(Request $request)
+    {
+        DB::beginTransaction();
+        try{
+        $bibliographicMaterial = new BibliographicMaterial();
+        $loanable = new Loanable();
+        $cartographicMaterial = new CartographicMaterial();
+        $cartographicMaterialKeyWord =  new CartographicMaterialKeyWord();     
+       
+        $loanable->barcode = $request->barcode;
+        $loanable->note = $request->note;
+        $loanable->state_id = $request->state_id;
+        $loanable->loan_category_id = $request->loan_category_id;
+        $loanable->save();
+        
+        $bibliographicMaterial->year = $request->year;
+        $bibliographicMaterial->signature = $request->signature;
+        $bibliographicMaterial->publication_place = $request->publication_place;
+        $bibliographicMaterial->editorial_id = $request->editorial_id;
+        $bibliographicMaterial->loanable_id = $loanable->id;        
+        $bibliographicMaterial->save();
+        
+        $cartographicMaterial->bibliographic_materials_id = $bibliographicMaterial->id;        
+        $cartographicMaterial->cartographic_format_id = $request->cartographic_format_id;
+        $cartographicMaterial->dimension = $request->dimension;
+        $cartographicMaterial->save();
+        
+        $cartographicMaterialKeyWord->cartographic_material_id = $cartographicMaterial->id;
+        $cartographicMaterialKeyWord->key_word_id = $request->key_word_id;
+        $cartographicMaterialKeyWord->save();
+        }catch(\Exception $e){
+            DB::rollback();
+            return 0;
+        }
+        DB::commit();
+        return $cartographicMaterial;
+    }*/
+    
+    /*public function testUpdate(Request $request, $id)
+    {
+        DB::beginTransaction();
+        try{
+        $cartographicMaterial = CartographicMaterial::find($id);
+        $bibliographicMaterial = BibliographicMaterial::find($cartographicMaterial->bibliographic_materials_id);
+        $loanable = Loanable::find($bibliographicMaterial->loanable_id);        
+        $cartographicMaterialKeyWord =  CartographicMaterialKeyWord::where('cartographic_material_id',$cartographicMaterial->id)->first();     
+       
+        $loanable->barcode = $request->barcode;
+        $loanable->note = $request->note;
+        $loanable->state_id = $request->state_id;
+        $loanable->loan_category_id = $request->loan_category_id;
+        $loanable->save();
+        
+        $bibliographicMaterial->year = $request->year;
+        $bibliographicMaterial->signature = $request->signature;
+        $bibliographicMaterial->publication_place = $request->publication_place;
+        $bibliographicMaterial->editorial_id = $request->editorial_id;
+        $bibliographicMaterial->loanable_id = $loanable->id;        
+        $bibliographicMaterial->save();
+        
+        $cartographicMaterial->bibliographic_materials_id = $bibliographicMaterial->id;        
+        $cartographicMaterial->cartographic_format_id = $request->cartographic_format_id;
+        $cartographicMaterial->dimension = $request->dimension;
+        $cartographicMaterial->save();
+        
+        $cartographicMaterialKeyWord->cartographic_material_id = $cartographicMaterial->id;
+        $cartographicMaterialKeyWord->key_word_id = $request->key_word_id;
+        $cartographicMaterialKeyWord->save();
+        }catch(\Exception $e){
+            DB::rollback();
+            return 0;
+        }
+        DB::commit();
+        return $cartographicMaterial;
+    }*/
+    
+    /*public function testDestroy($id)
+    {
+        DB::beginTransaction();
+        try{
+        $cartographicMaterial = CartographicMaterial::find($id);
+        $id_bibliographicMaterial = $cartographicMaterial->bibliographic_materials_id;
+        $bibliographicMaterial = BibliographicMaterial::find($id_bibliographicMaterial);
+        $id_loanable = $bibliographicMaterial->loanable_id;
+              
+        DB::table('cartographic_material_key_words')->where('cartographic_material_id', $cartographicMaterial->id)->delete();
+        
+        CartographicMaterial::destroy($id);
+        BibliographicMaterial::destroy($id_bibliographicMaterial);
+        Loanable::destroy($id_loanable);
+        }catch(\Exception $e){
+            DB::rollback();
+            return 0;
+        }
+        DB::commit();
+        return 1;
+    }*/
     
 
 }
