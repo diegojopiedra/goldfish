@@ -37,4 +37,4 @@ Route::get('update/{id}','UserController@update');
 Route::get('search-by-name','UserController@searchByName');
 Route::post('return-loan', 'LoanController@returnLoan');
 Route::resource('periodic-publication','PeriodicPublicationController');
-Route::resource('copy-periodic-publication','CopyPeriodicPublicationController');
+//Route::resource('copy-periodic-publication','CopyPeriodicPublicationController');
