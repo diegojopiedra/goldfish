@@ -5,7 +5,7 @@ use App\Brand;
 class BrandSeeder extends Seeder
 {
 
-    $brands= ["Epson", "Toshiba", "Steren", "Asus", "HP", "Pioneer", "Bose", "Sony", "Benq", "Panasonic"];
+    
     /**
      * Run the database seeds.
      *
@@ -13,6 +13,7 @@ class BrandSeeder extends Seeder
      */
     public function run()
     {
+        $brands= ["Epson", "Toshiba", "Steren", "Asus", "HP", "Pioneer", "Bose", "Sony", "Benq", "Panasonic"];
         for($i=0;$i < 20; $i++){
             $brand = $brands[rand(0,count($brands)-1)];
         	Brand::create([
