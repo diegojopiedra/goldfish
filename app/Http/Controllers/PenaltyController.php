@@ -8,6 +8,7 @@ use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use App\Loan;
 use App\Penalty;
+use DB;
 
 class PenaltyController extends Controller
 {
@@ -38,13 +39,22 @@ class PenaltyController extends Controller
      */
     public function store(Request $request)
     {
-     $loan = new Loan();
-     $penalty = new Penalty();
-     $id = $request->id;
-   
-     $penalty->loan_id = Loan::where('id', $request->id)->first()->id;
-     $penalty->save();
-     return $penalty;
+      $loan = new Loan();
+      $penalty = new Penalty();
+      $id = $request->id;
+
+      DB::beginTransaction();
+      try {
+        
+        }$penalty->loan_id = Loan::where('id', $request->id)->first()->id;
+        $penalty->save();
+      
+      } catch (\Exception $e) {
+        DB::rollback();
+        return null;
+      }
+      DB::commit();
+      return $penalty;
     }
 
 

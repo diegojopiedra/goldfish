@@ -10,6 +10,7 @@ use App\Book;
 use App\BibliographicMaterial;
 use App\Loanable;
 use APP\LoanCategory;
+use DB;
 
 class BookController extends Controller
 {
@@ -41,25 +42,34 @@ class BookController extends Controller
      */
     public function store(Request $request)
     {
-        $book = new Book();
-        $bibliographicMateial = new BibliographicMaterial();
+        $   $book = new Book();
+        $bibliographicMaterial = new BibliographicMaterial();
         $loanable = new Loanable();
-                
+    
+        DB::BeginTransaction();
+        try {    
         $loanable->barcode = $request->barcode;
         $loanable->note = $request->note;
         $loanable->state_id = $request->state_id;
-        $loanable->loan_category_id = $loan_category->id;
+        //$loanable->loan_category_id = $request->loan_category_id;
         $loanable->save();
 
-        $bibliographicMateial->year = $request->year;
-        $bibliographicMateial->signature = $request->signature;
-        $bibliographicMateial->publication_place = $request->publication_place;
-        $bibliographicMateial->editorial_id = $request->editorial_id;
-        $bibliographicMateial->loanable_id = $loanable->id;
-        $bibliographicMateial->save(); 
+        $bibliographicMaterial->year = $request->year;
+        $bibliographicMaterial->signature = $request->signature;
+        $bibliographicMaterial->publication_place = $request->publication_place;
+        $bibliographicMaterial->editorial_id = $request->editorial_id;
+        $bibliographicMaterial->loanable_id = $loanable->id;
+        $bibliographicMaterial->save(); 
 
-        $book->bibliographic_materials_id = $bibliographicMateial->id;
+        $book->bibliographic_materials_id = $bibliographicMaterial->id;
         $book->save();
+
+        } catch (\Exception $e) {
+           DB::rollback();
+           return null;
+        }
+
+        DB::commit();
         return $book;
     }
 
@@ -94,14 +104,18 @@ class BookController extends Controller
      */
     public function update(Request $request, $id)
     {
+       
         $book = Book::find($id);
         $bibliographicMaterial = BibliographicMaterial::find($book->bibliographic_materials_id);
         $loanable = Loanable::find($bibliographicMaterial->loanable_id);
+       
+        DB::beginTransaction();
+        try { 
 
         $loanable->barcode = $request->barcode;
         $loanable->note = $request->note;
         $loanable->state_id = $request->state_id;
-        $loanable->loan_category_id = $loan_category->id;
+        //$loanable->loan_category_id = $request->loan_category_id;
         $loanable->save();
 
         $bibliographicMaterial->year = $request->year;
@@ -113,6 +127,13 @@ class BookController extends Controller
 
         $book->bibliographic_materials_id = $bibliographicMaterial->id;
         $book->save();
+
+        } catch (\Exception $e) {
+           DB::rollback();
+           return null;
+        }
+
+        DB::commit();
         return $book;
     }
 
@@ -124,16 +145,23 @@ class BookController extends Controller
      */
     public function destroy($id)
     {
-        $book = Book::find($id);
-
+     $book = Book::find($id);
         $id_BibliographicMaterial = $book->bibliographic_materials_id;
         $bibliographicMateial = BibliographicMaterial::find($id_BibliographicMaterial);
         $id_loanable = $bibliographicMateial->loanable_id;
 
+        DB::BeginTransaction();
+        try{ 
+        
         Book::destroy($id);
         BibliographicMaterial::destroy($id_BibliographicMaterial);
         Loanable::destroy($id_loanable);
-
+        
+        } catch (\Exception $e) {
+        DB::rollback();
+        return null;
+        }
+        DB::commit();
         return 1;
     }
         
