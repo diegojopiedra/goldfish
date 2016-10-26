@@ -17,15 +17,15 @@ class LoanableSeeder extends Seeder
         'barcode' => "AU1510",
         'note' => 'Equipo nuevo',
         'state_id' => 1,
-        'loan_category_id' =>  1,
+        'loan_category_id' => 1,
         ]);
        for($i=1; $i<60;$i++) {
-             Loanable::Create([
                 $note = $notes[rand(0,count($notes)-1)];
+             Loanable::Create([
                 'barcode' => "AU". (1800+$i),
                 'note' => $note,
                 'state_id' => rand(1,4),
-                'loan_category_id' => $i + 1,
+                'loan_category_id' => 1,
              	]);
          }
     }

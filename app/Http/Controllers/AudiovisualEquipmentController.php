@@ -27,7 +27,7 @@ class AudiovisualEquipmentController extends Controller
      */
     public function index()
     {
-        $lengthPage = 15;
+        $lengthPage = 10;
 
         $equipments = AudiovisualEquipment::paginate($lengthPage);
 

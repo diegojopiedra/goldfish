@@ -66,7 +66,7 @@ class LoanController extends Controller
 		$barcode = $request->barcode;
         $loanable = Loanable::where('barcode', $barcode)->first();
 		
-        $loan->departure_time = $request->departure_time;
+        $loan->departure_time = date('Y-m-d H:i:s');
         $loan->user_id = $request->user_id;
         $loan->return_time = $request->return_time;
         $loan->authorizing_user_id = JWTAuth::toUser($request->token)->id;
@@ -76,19 +76,22 @@ class LoanController extends Controller
 		if($loanable->state_id == 1){
 			DB::beginTransaction();
 			try {
-			$loanable->state_id = 2;
-            
-			$loanable->save();
-			$loan->save();
-			} catch (\Exception $e)
-			{
-			DB::rollback();
-			return null;
+    			$loanable->state_id = 2;
+                $loan->loanable;
+                $loan->loanable->audiovisualEquipment;
+                $loan->loanable->audiovisualEquipment->type;
+                $loan->loanable->audiovisualEquipment->brand;
+                $loan->loanable->audiovisualEquipment->model;
+    			$loanable->save();
+    			$loan->save();
+			} catch (\Exception $e){
+    			DB::rollback();
+    			return 0;
 			}
 			DB::commit();
-			return $loan;
+		    return $loan;
 		}    
-        return null;
+        return 0;
     }
     public function gets()
     {
@@ -151,6 +154,8 @@ class LoanController extends Controller
             $loan->loanable;
             $loan->loanable->audiovisualEquipment;
             $loan->loanable->audiovisualEquipment->type;
+            $loan->loanable->audiovisualEquipment->brand;
+            $loan->loanable->audiovisualEquipment->model;
             $loanable->save();
             $loan->save();
 			//return $loan;
@@ -171,7 +176,6 @@ class LoanController extends Controller
             $loanById = Loan::where('user_id' ,'=', $user->id)->where('user_return_time' ,'=', '0000-00-00 00:00:00')->get();
             foreach ($loanById as $loan) {
                 $loan->loanable;
-<<<<<<< HEAD
                 if(isset($loan)){
                     $loan->audiovisualEquipment;
                     $loan->copyPeriodicPublication;
@@ -209,10 +213,4 @@ class LoanController extends Controller
         return array('response' => "not available");
     } 
 }
-=======
-            }
-        }
-        return $loanById;
-    } 
-}
->>>>>>> 5ecb7b91f4391d37e0aa03c8c2c61b5d01366410
+

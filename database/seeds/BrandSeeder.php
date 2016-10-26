@@ -14,7 +14,7 @@ class BrandSeeder extends Seeder
     public function run()
     {
         $brands= ["Epson", "Toshiba", "Steren", "Asus", "HP", "Pioneer", "Bose", "Sony", "Benq", "Panasonic"];
-        for($i=0;$i < 20; $i++){
+        for($i=0;$i < 10; $i++){
             $brand = $brands[rand(0,count($brands)-1)];
         	Brand::create([
         		'name' => $brand,

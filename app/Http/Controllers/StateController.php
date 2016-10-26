@@ -6,9 +6,9 @@ use Illuminate\Http\Request;
 
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
-use App\Type;
+use App\State;
 
-class TypeController extends Controller
+class StateController extends Controller
 {
     public function __construct()
     {
@@ -21,7 +21,7 @@ class TypeController extends Controller
      */
     public function index()
     {
-        return Type::all();
+        return State::all();    
     }
 
     /**
@@ -42,10 +42,7 @@ class TypeController extends Controller
      */
     public function store(Request $request)
     {
-		$type = new Type();
-        $type->name = $request->name;
-		$type->save();
-		return $type;
+        //
     }
 
     /**
@@ -56,8 +53,7 @@ class TypeController extends Controller
      */
     public function show($id)
     {
-        
-		return  Type::find($id);
+        //
     }
 
     /**
@@ -68,7 +64,7 @@ class TypeController extends Controller
      */
     public function edit($id)
     {
-        
+        //
     }
 
     /**
@@ -80,10 +76,7 @@ class TypeController extends Controller
      */
     public function update(Request $request, $id)
     {
-		$type = Type::find($id);
-        $type->name = $request->name;
-		$type->save();
-		return $type;
+        //
     }
 
     /**
@@ -94,11 +87,6 @@ class TypeController extends Controller
      */
     public function destroy($id)
     {
-        $del = Type::destroy($id);
-	
-		if($del1==true) {
-			return 1;
-		}
-		return 0;
+        //
     }
 }

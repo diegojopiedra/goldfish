@@ -12,11 +12,11 @@ class AudiovisualEquipmentSeeder extends Seeder
      */
     public function run()
     {
-        for($i=0; $i<20;$i++) {
+        for($i=0; $i<60;$i++) {
 			AudiovisualEquipment::create([
-			'brand_id'=>$i+1,
-			'model_id'=>$i+1,
-			'type_id'=>$i+1,
+			'brand_id'=>rand(1,10),
+			'model_id'=>rand(1,9),
+			'type_id'=>rand(1,13),
             'loanable_id'=>$i+1,
 			]);
 		}

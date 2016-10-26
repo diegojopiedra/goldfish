@@ -10,7 +10,7 @@ use App\User;
 use App\Role;
 use App\Student;
 use Auth;
-
+use JWTAuth;
 class UserController extends Controller
 {
 
@@ -23,9 +23,9 @@ class UserController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $user = Auth::user();
+        $user = JWTAuth::toUser($request->token);
         if(isset($user) && $user->role_id == 1){
             return User::all();
         }
@@ -95,17 +95,18 @@ class UserController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show($id, Request $request)
     {
-        $user = Auth::user();
+        $user = JWTAuth::toUser($request->token);
         if($user->id == $id || $user->role_id == 1){
 
             $userFind = User::find($id);
             $userFind->role;
+            $userFind->student;
             return $userFind;
             
         }
-        return null;
+        return 0;
     }
 	
 	public function searchByName(Request $request){
@@ -178,7 +179,7 @@ class UserController extends Controller
     }
 	
     public function searchByIdentification(Request $request){
-        sleep(1);
+        //sleep(1);
 
         $student = Student::where('license', $request->identification)->first();
          if(isset($student)){
@@ -195,6 +196,6 @@ class UserController extends Controller
          if(isset($user)){
             return $user;
          }
-         return null;
+         return 0;
     }
 }

@@ -10,6 +10,10 @@ use App\Brand;
 
 class BrandController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('cros', ['except' => ['create', 'edit']]);
+    }
     /**
      * Display a listing of the resource.
      *

@@ -12,10 +12,17 @@ class StateSeeder extends Seeder
      */
     public function run()
     {
-        for ($i=0; $i < 20; $i++) { 
-        	State::create([
-        		'description' => 'estado_' .$i,
-        		]);
-        }
+        State::create([
+            'description' => 'Disponible',
+        ]);
+        State::create([
+            'description' => 'Prestado',
+        ]);
+        State::create([
+            'description' => 'Fuera de servicio',
+        ]);
+        State::create([
+            'description' => 'En reparación',
+        ]);
     }
 }

@@ -124,7 +124,7 @@ const LoanPanel = {
 		  		state: 'default',
 		  		disabled: false,
 		  	},
-		  	user: new User({identification: '201620442'}),
+		  	user: new User({identification: '207400490'}),
 		  	currentLoans:[],
 		  	barcode: '',
 		  	return_time: '',
@@ -182,7 +182,7 @@ const Login = {
 	`,
 	data: function () {
 		return {
-		  	email: 'karol.pacheco@gmail.com',
+		  	email: 'vanessa.arce@ucr.ac.cr',
 		  	password: '1234',
 		  	loading: false
 		}
@@ -227,9 +227,15 @@ const Login = {
 
 const AudiovisualEquipmentManagement = {
 	template: `
-		<div class="col-xs-12 col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-2"  :listing-id="audiovisual_equipment_managment">
+		<div class="col-xs-12 col-sm-10 col-sm-offset-1"  :listing-id="audiovisual_equipment_managment">
 			<div class="well">
-				<table class="table table-striped">
+				<h3>
+					Equipo audiovisual
+				</h3>
+				<span class="text-muted">
+					Página {{$route.params.page}} de {{page.last_page}}
+				</span>
+				<table class="table table-striped" border="1">
 					<tr>
 						<th>
 							Código de barras
@@ -247,12 +253,16 @@ const AudiovisualEquipmentManagement = {
 							Estado
 						</th>
 					</tr>
-					<tr v-for="equipment in page.data">
+					<tr v-for="equipment in page.data" v-bind:class="{'success': equipment.loanable.state_id == 1}">
 						<td>
-							{{equipment.loanable.barcode}}
+							<router-link  :to="{ name: 'equipo-audiovisual-panel', params: { id: equipment.loanable.id }}">
+								{{equipment.loanable.barcode}}
+							</router-link>
 						</td>
 						<td>
-							{{equipment.type.name}}
+							<router-link  :to="{ name: 'equipo-audiovisual-panel', params: { id: equipment.loanable.id }}">
+								{{equipment.type.name}}
+							</router-link>
 						</td>
 						<td>
 							{{equipment.model.name}}
@@ -266,6 +276,9 @@ const AudiovisualEquipmentManagement = {
 
 					</tr>
 				</table>
+				<span class="text-muted">
+					Resultados desde {{page.from}} hasta {{page.to}}
+				</span>
 				<nav aria-label="Page navigation">
 				  <ul class="pagination">
 				    <li>
@@ -307,6 +320,101 @@ const AudiovisualEquipmentManagement = {
   	}
 }
 
+const AudiovisualEquipmentPanel = {
+	template: `
+		<div class="col-xs-12 col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-2"  :listing-id="audiovisual_equipment_panel">
+			<div class="well row">
+				<h3>
+					Panel de equipo
+				</h3>
+				<div class="col-xs-12 col-md-6">
+					<div class="input-group has-default">
+						<span id="user" class="input-group-addon">
+							<i aria-hidden="true" class="fa fa-barcode"></i>
+						</span>
+						<input autofocus="autofocus" type="text" placeholder="Código de barras" aria-describedby="user" class="form-control">
+					</div>
+				</div>
+				<div class="col-xs-12 col-md-6">
+					<div class="input-group has-default">
+						<!--<input style="display: none" autofocus="autofocus" type="text" placeholder="Nombre" aria-describedby="user" class="form-control">-->
+						<select name="" id="" class="form-control" v-model="audiovisual_data.type_id">
+							<option value="" disabled selected="selected">Nombre</option>
+							<option v-for="type in types" value="{{type.id}}">{{type.name}}</option>
+						</select>
+						<span id="user" class="input-group-addon">
+							Nuevo <input type="checkbox" />
+						</span>
+					</div>
+				</div>	
+				<br /> <br /> <br />
+				<div class="col-xs-12 col-md-6">
+					<div class="input-group has-default">
+						<span id="user" class="input-group-addon">
+							Nuevo <input type="checkbox" />
+						</span>
+						<!--<input style="display: none" autofocus="autofocus" type="text" placeholder="Marca" aria-describedby="user" class="form-control">-->
+						<select name="" id="" class="form-control">
+							<option value="" disabled selected="selected"  v-model="audiovisual_data.brand_id">Marca</option>
+							<option v-for="brand in brands" value="{{brand.id}}">{{brand.name}}</option>
+						</select>
+					</div>
+				</div>
+				<div class="col-xs-12 col-md-6">
+					<div class="input-group has-default">
+						<!--<input style="display: none" autofocus="autofocus" type="text" placeholder="Modelo" aria-describedby="user" class="form-control">-->
+						<select name="" id="" class="form-control" v-model="audiovisual_data.model_id">
+							<option value="" disabled selected="selected">Modelo</option>
+							<option v-for="model in models" value="{{model.id}}">{{model.name}}</option>
+						</select>
+						<span id="user" class="input-group-addon">
+							Nuevo <input type="checkbox" />
+						</span>
+					</div>
+				</div>	
+				<br /> <br /> <br />	
+				<div class="col-xs-12 col-md-6">
+					<!--<input style="display: none" autofocus="autofocus" type="text" id="identification" placeholder="Código de barras" aria-describedby="user" class="form-control">-->
+					<select name="" id="" class="form-control">
+						<option value="" disabled selected="selected">Estado</option>
+						<option v-for="state in states" value="{{state.id}}"">{{state.description}}</option>
+					</select>
+				</div>	
+				<br /> <br /> <br />	
+				<div class="col-xs-12">
+					<textarea name="" id="" cols="30" rows="10" class="form-control" placeholder="Notas"></textarea>
+				</div>
+				<br /> <br /> <br />	
+				<div class="col-xs-12"><button style="margin-top: 10px;" class="btn btn-primary pull-right">
+					<i class="fa fa-floppy-o" aria-hidden="true"></i> Guardar
+				</button></div>
+			</div>
+		</div>
+	`,
+	data: function () {
+		return {
+			types: [],
+			brands: [],
+			models: [],
+			states: [],
+			audiovisual_data:{},
+			audiovisual_id: this.$route.params.id,
+			audiovisual_equipment_panel: audiovisualPanelLoad(this)
+		}
+	},
+	methods:{
+	  	loading: function() {
+			audiovisualPanelLoad(this);
+	  	}
+  	},
+  	watch: {
+  		$route: function () {
+  			this.loading()
+  		}
+  	}
+}
+
+
 var user = getUser();
 function getUser() {
 	if(sessionStorage.user){
@@ -325,6 +433,7 @@ const router = new VueRouter({
 	  { path: '/login', component: Login, meta: { requiresLogout: true } },
 	  { path: '/prestamos', alias: '/', component: LoanPanel, meta: { requiresAuth: true } },
 	  { path: '/equipo-audiovisual/:page', name: 'equipo-audiovisual', component: AudiovisualEquipmentManagement, meta: { requiresAuth: true } },
+	  { path: '/equipo-audiovisual-panel/:id', name: 'equipo-audiovisual-panel', component: AudiovisualEquipmentPanel, meta: { requiresAuth: true } },
 	  { 
 	  	path: '/user/:id', 
 	  	component: UserComponent,
@@ -507,7 +616,9 @@ function getUserDataById(id, parent) {
 		method: "GET",
 		dataType: 'json',
 		url: wss + "users/"+id,
-		data: {}
+		data: {
+			token: sessionStorage.getItem('token')
+		}
 	});
 	xhr.done(function( msg ) {
 		console.log(msg);
@@ -515,7 +626,7 @@ function getUserDataById(id, parent) {
 			parent.user.autoFill(msg);
 			parent.searchUser.state = 'success';
 			parent.identification = msg.identity_card;
-			getCurrentLoans(parent.user.id, parent.currentLoans);
+			getCurrentLoans(parent);
 		}else{
 			parent.user.clear();
 			parent.currentLoans = [];
@@ -588,13 +699,14 @@ function getCurrentLoans(parent) {
 	    }
 	});
 	xhr.fail(function (msg) {
-	    app.user.clear();
-		app.searchUser.state = 'error';
+	    //app.user.clear();
+		//app.searchUser.state = 'error';
 	    $("#identification").focus();
 	    message("Existe un error de comunicación con el servidor, por favor reintente la ultima acción. Si el problema persiste solicite soporte técnico", "¡Ha ocurrido un inconveniente!");
 	});
-	xhr.always(function (msg) {
+	xhr.always(function (msg, state, asd) {
 		//app.searchUser.disabled = false;
+		console.log(msg, state, asd)
 	});
 }
 
@@ -719,7 +831,8 @@ function automaticLoan(parent) {
 	  		return_time: "2016-10-16 02:00:00",
 	  		barcode: parent.barcode,
 	  		token: sessionStorage.getItem("token")
-	  	}
+	  	},
+	  	context: parent
 	});
 
 	xhr.done(function( msg ) {
@@ -754,9 +867,9 @@ function automaticLoan(parent) {
 	    $( "#barcode" ).focus();
 
 	   	if(parent.user.id == null){
-	   		getUserDataById(msg.user_id);
+	   		getUserDataById(msg.user_id, this);
 	   	}else if(parent.user.id != msg.user_id){
-	   		getUserDataById(msg.user_id);
+	   		getUserDataById(msg.user_id, this);
 	   		toastr["info"]("Se ha cambiado de usuario para realizar la operación")
 	   	}
 
@@ -886,4 +999,103 @@ function audiovisualLoad(parent) {
 	xhr.fail(function () {
 		//toastr['error']('Ha ocurrido un error, la sesión continúa abierta');
 	});
+}
+
+function audiovisualPanelLoad(parent) {
+	var types = $.ajax({
+		method: "GET",
+		dataType: 'json',
+		url: wss + "type",
+		data: {
+			token: sessionStorage.getItem('token')
+		},
+		context: parent
+	});
+
+	types.done(function (msg) {
+		console.log(msg);
+		parent.types = msg;
+	});
+
+	types.fail(function () {
+		toastr['error']('Al cargar los nombres de los equipos', 'Ha ocurrido un error');
+	});
+
+	var brands = $.ajax({
+		method: "GET",
+		dataType: 'json',
+		url: wss + "brand",
+		data: {
+			token: sessionStorage.getItem('token')
+		},
+		context: parent
+	});
+
+	brands.done(function (msg) {
+		console.log(msg);
+		parent.brands = msg;
+	});
+
+	brands.fail(function () {
+		toastr['error']('Al cargar las marcas de los equipos', 'Ha ocurrido un error');
+	});
+
+	var models = $.ajax({
+		method: "GET",
+		dataType: 'json',
+		url: wss + "model",
+		data: {
+			token: sessionStorage.getItem('token')
+		},
+		context: parent
+	});
+
+	models.done(function (msg) {
+		console.log(msg);
+		parent.models = msg;
+	});
+
+	models.fail(function () {
+		toastr['error']('Al cargar los modelos de los equipos', 'Ha ocurrido un error');
+	});
+
+	var state = $.ajax({
+		method: "GET",
+		dataType: 'json',
+		url: wss + "state",
+		data: {
+			token: sessionStorage.getItem('token')
+		},
+		context: parent
+	});
+
+	state.done(function (msg) {
+		console.log(msg);
+		parent.states = msg;
+	});
+
+	state.fail(function () {
+		toastr['error']('Al cargar los estados de los equipos', 'Ha ocurrido un error');
+	});
+
+		console.log('parent',parent);
+	var audiovisual = $.ajax({
+		method: "GET",
+		dataType: 'json',
+		url: wss + "audiovisual-equipment/" + parent.$route.params.id,
+		data: {
+			token: sessionStorage.getItem('token')
+		},
+		context: parent
+	});
+
+	audiovisual.done(function (msg) {
+		console.log('msg', msg);
+		this.audiovisual_data = msg;
+	});
+
+	audiovisual.fail(function () {
+		toastr['error']('Al cargar los datos del audiovisual', 'Ha ocurrido un error');
+	});
+
 }

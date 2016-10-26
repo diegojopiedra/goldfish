@@ -49,13 +49,13 @@
 				<!-- Collect the nav links, forms, and other content for toggling -->
 				<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
 					<ul class="nav navbar-nav">
-						<li>
+						<li  v-if="user.name">
 							<router-link to="/prestamos">
 								Préstamos <span class="sr-only">(current)</span>
 							</router-link>
 						</li>
-						<li><a href="#">Usuarios</a></li>
-						<li class="dropdown">
+						<li  v-if="user.name"><a href="#">Usuarios</a></li>
+						<li class="dropdown"  v-if="user.name">
 							<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Gestión <span class="caret"></span></a>
 							<ul class="dropdown-menu">
 								<li><a href="#/equipo-audiovisual/1">Equipo audiovisual</a></li>

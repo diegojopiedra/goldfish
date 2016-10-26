@@ -12,10 +12,12 @@ class TypeSeeder extends Seeder
      */
     public function run()
     {
-        for ($i=0; $i < 20; $i++) {
-        	Type::create([
-		        'name'=> 'Tipo_' . $i,
-		    ]);
+        $names = ["Portatil", "Cable HMDI", "Cable VGA", "Proyector", "Regleta", "Parlante", "Extension", "TV", "Planta de sonido", "Microfono", "Tablet", "Aula", "Grabadora"];
+
+        for($i=0;$i < 13; $i++){
+            Type::create([
+                'name' => $names[$i],
+                ]);
         }
     }
 }
