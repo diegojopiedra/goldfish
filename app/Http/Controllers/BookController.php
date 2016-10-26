@@ -42,7 +42,7 @@ class BookController extends Controller
      */
     public function store(Request $request)
     {
-        $   $book = new Book();
+        $book = new Book();
         $bibliographicMaterial = new BibliographicMaterial();
         $loanable = new Loanable();
     
