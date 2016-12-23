@@ -13,11 +13,15 @@ class AudiovisualEquipment extends Model
 	    public function model() {
 		return $this->belongsTo('App\AudiovisualModel');
 	}
-	    public function type() {
+	
+	public function type() {
 		return $this->belongsTo('App\Type');
 	}
-	public function loanable() {
-		return $this->belongsTo('App\Loanable');
-	}
+
+	public function loanable()
+    {
+        return $this->morphOne('App\Loanable', 'specification');
+    }
+    
 }
 

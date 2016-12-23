@@ -15,9 +15,14 @@ class CreatePenaltiesTable extends Migration
         Schema::create('penalties', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('loan_id')->unsigned();
+            $table->date('penalty_time_finish');
+            $table->boolean('executed');
+            $table->integer('user_id')->unsigned();
             $table->timestamps();
 			
 			$table->foreign('loan_id')->references('id')->on('loans');
+			
+			$table->foreign('user_id')->references('id')->on('users');
         });
     }
 

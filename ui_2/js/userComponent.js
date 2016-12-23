@@ -1,0 +1,1 @@
+const UserComponent = {template: '#asd'};

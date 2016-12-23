@@ -17,11 +17,9 @@ class CreateCopyPeriodicPublicationsTable extends Migration
 			$table->integer('number');
 			$table->integer('volume');
 			$table->date('publication_date');
-			$table->integer('periodic_publication_id')->unsigned();;
-			$table->integer('loanables_id')->unsigned();;
+			$table->integer('periodic_publication_id')->unsigned();
 			
 			$table->foreign('periodic_publication_id')->references('id')->on('periodic_publications');
-			$table->foreign('loanables_id')->references('id')->on('loanables');
             $table->timestamps();
         });
     }

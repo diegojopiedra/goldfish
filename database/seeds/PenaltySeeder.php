@@ -12,12 +12,6 @@ class PenaltySeeder extends Seeder
      */
     public function run()
     {
-        for($i=0;$i < 20; $i++){
-        	Penalty::create([
-
-        		'loan_id' =>  $i+1,
-        		]);
-        }
 
     }
 }

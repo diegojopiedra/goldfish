@@ -44,42 +44,8 @@ class CopyPeriodicPublicationController extends Controller
      */
     public function store(Request $request)
     {
-        $copyPeriodicPublication = new CopyPeriodicPublication();
-        $loanable = new Loanable();
-        $article = new Article();
-        $articleKeyWord = new ArticleKeyWord();
-        $articleAuthor = new ArticleAuthor();
-        
-        $loanable->barcode = $request->barcode;
-        $loanable->note = $request->note;
-        $loanable->state_id = $request->state_id;
-        $loanable->loan_category_id = $request->loan_category_id;
-        $loanable->save();        
-        
-        $copyPeriodicPublication->number = $request->number;
-        $copyPeriodicPublication->volume = $request->volume;
-        $copyPeriodicPublication->periodic_publication_id = $request->id;
-        $copyPeriodicPublication->loanables_id = $loanable->id;
-        $copyPeriodicPublication->save();
-        
-        $article->title = $request->title;
-        $article->begin_page = $request->begin_page;
-        $article->end_page =$request->end_page;
-        $article->copy_periodic_publication_id = $copyPeriodicPublication->id;
-        $article-> save();
-        
-        $articleKeyWord->article_id = $article->id;
-        $articleKeyWord->key_word_id = $request->key_word_id;
-        $articleKeyWord->save();
-        
-        $articleAuthor->article_id = $article->id;
-        $articleAuthor->author_id = $request->author_id;
-        $articleAuthor->save();
-        
-        return $copyPeriodicPublication;
-    }
-    
-    public function testStore(Request $request){
+        DB::beginTransaction();
+        try{
         $copyPeriodicPublication = new CopyPeriodicPublication();
         $loanable = new Loanable();
         $article = new Article();
@@ -111,11 +77,14 @@ class CopyPeriodicPublicationController extends Controller
         $articleAuthor->article_id = $article->id;
         $articleAuthor->author_id = $request->author_id;
         $articleAuthor->save();
-        
+        }catch(\Exception $e){
+					DB::rollBack();
+					return 0;
+		}
+	    DB::commit();
         return $copyPeriodicPublication;
-        
     }
-
+    
     /**
      * Display the specified resource.
      *
@@ -147,50 +116,14 @@ class CopyPeriodicPublicationController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $copyPeriodicPublication = CopyPeriodicPublication::find($id);
-        $loanable = Loanable::find($copyPeriodicPublication->loanables_id);        
-        $articleId = Article::where('copy_periodic_publication_id',$copyPeriodicPublication->id)->first()->id;
-        $article = Article::find($articleId->id);
-        $articleKeyWord = ArticleKeyWord::find($article->id);
-        $articleAuthor =  ArticleAuthor::find($article->id);
-        
-        $loanable->barcode = $request->barcode;
-        $loanable->note = $request->note;
-        $loanable->state_id = $request->state_id;
-        $loanable->loan_category_id = $request->loan_category_id;
-        $loanable->save();        
-        
-        $copyPeriodicPublication->number = $request->number;
-        $copyPeriodicPublication->volume = $request->volume;
-        $copyPeriodicPublication->periodic_publication_id = $request->id;
-        $copyPeriodicPublication->loanables_id = $loanable->id;
-        $copyPeriodicPublication->save();
-        
-        $article->title = $request->title;
-        $article->begin_page = $request->begin_page;
-        $article->end_page =$request->end_page;
-        $article->copy_periodic_publication_id = $copyPeriodicPublication->id;
-        $article-> save();
-        
-        $articleKeyWord->article_id = $article->id;
-        $articleKeyWord->key_word_id = $request->key_word_id;
-        $articleKeyWord->save();
-        
-        $articleAuthor->article_id = $article->id;
-        $articleAuthor->author_id = $request->author_id;
-        $articleAuthor->save();
-        
-        return $copyPeriodicPublication;
-    }
-    
-    public function testUpdate(Request $request, $id)
-    {
+        DB::beginTransaction();
+        try{
         $copyPeriodicPublication = CopyPeriodicPublication::find($id);
         $loanable = Loanable::find($copyPeriodicPublication->loanables_id);        
         $articleId = Article::where('copy_periodic_publication_id',$copyPeriodicPublication->id)->first()->id;
         $article = Article::find($articleId);
-        $articleKeyWord = ArticleKeyWord::where('article_id',$article->id)->first();
-        $articleAuthor =  ArticleAuthor::where('article_id',$article->id)->first();
+        $articleKeyWord = ArticleKeyWord::where('article_id',$articleId)->first();
+        $articleAuthor =  ArticleAuthor::where('article_id',$articleId)->first();
         
         $loanable->barcode = $request->barcode;
         $loanable->note = $request->note;
@@ -200,7 +133,8 @@ class CopyPeriodicPublicationController extends Controller
         
         $copyPeriodicPublication->number = $request->number;
         $copyPeriodicPublication->volume = $request->volume;
-        $copyPeriodicPublication->periodic_publication_id = $request->periodic_publication_id;
+		$copyPeriodicPublication->publication_date = $request->publication_date;
+        $copyPeriodicPublication->periodic_publication_id = $request->periodic_publication_id ;
         $copyPeriodicPublication->loanables_id = $loanable->id;
         $copyPeriodicPublication->save();
         
@@ -208,7 +142,7 @@ class CopyPeriodicPublicationController extends Controller
         $article->begin_page = $request->begin_page;
         $article->end_page =$request->end_page;
         $article->copy_periodic_publication_id = $copyPeriodicPublication->id;
-        $article-> save();
+        $article->save();
         
         $articleKeyWord->article_id = $article->id;
         $articleKeyWord->key_word_id = $request->key_word_id;
@@ -217,75 +151,56 @@ class CopyPeriodicPublicationController extends Controller
         $articleAuthor->article_id = $article->id;
         $articleAuthor->author_id = $request->author_id;
         $articleAuthor->save();
-        
+        }catch(\Exception $e){
+					DB::rollBack();
+					return 0;
+		}
+	    DB::commit();
         return $copyPeriodicPublication;
     }
-
+    
+    
     /**
      * Remove the specified resource from storage.
      *
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
-    {
+    
+    public function destroy($id){
         $copyPeriodicPublication = CopyPeriodicPublication::find($id);
         if(asset($copyPeriodicPublication) == true){
-            $del1 = $this->testDestroyAr($id);
-            $del2 = CopyPeriodicPublication::destroy($id);
-            $loanableId = $copyPeriodicPublication->loanables_id;
-            $del3 = Loanable::destroy($loanableId);
-         if($del1 == true && $del2==true && $del3 == true){
-            return 1;        
-       }
-        return 0;
-        
-       }
-       return null;
-        
-        
-    }
-    
-    public function testDestroy($id){
-        $copyPeriodicPublication = CopyPeriodicPublication::find($id);
-        if(asset($copyPeriodicPublication) == true){
-            $del1 = $this->testDestroyAr($id);
-            $del2 = CopyPeriodicPublication::destroy($id);
-            $loanableId = $copyPeriodicPublication->loanables_id;
-            $del3 = Loanable::destroy($loanableId);
-         if($del1 == true && $del2==true && $del3 == true){
-            return 1;        
-       }
-        return 0;
-        
-       }
-       return null;
-        
-    }
-    
-    public function testDestroyAr($copyPeriodicPublicationId){
-        $flag = false;
-        while($flag == false){
-            
-            $articleId = Article::where('copy_periodic_publication_id',$copyPeriodicPublicationId)->first()->id;
-            DB::table('article_key_words')->where('article_id', $articleId)->delete();
-            DB::table('article_authors')->where('article_id', $articleId)->delete();
-            $flag = Article::destroy($articleId);
-           
+           DB::beginTransaction();
+           try{
+            $this->testDestroyArticle($id);
+            CopyPeriodicPublication::destroy($id);
+			$loanableId = $copyPeriodicPublication->loanables_id;
+            Loanable::destroy($loanableId);
+           }catch(\Exception $e){
+					DB::rollBack();
+					return 0;
+				}
+				DB::commit();
+				return 1;
         }
-        return $flag;
     }
-    
     
     public function destroyArticle($copyPeriodicPublicationId){
-        $flag = false;
+       $flag = false;
+        DB::beginTransaction();
+        try{
         while($flag == false){            
             $articleId = Article::where('copy_periodic_publication_id',$copyPeriodicPublicationId)->first()->id;
             DB::table('article_key_words')->where('article_id', $articleId)->delete();
             DB::table('article_authors')->where('article_id', $articleId)->delete();
-            $flag = Article::destroy($articleId);
-           
+            $flag = Article::destroy($articleId);           
         }
-        return $flag;
-    }
+        }catch(\Exception $e){
+				DB::rollBack();
+				return false;
+				}
+			DB::commit();
+			return $flag;
+        }
+    
 }

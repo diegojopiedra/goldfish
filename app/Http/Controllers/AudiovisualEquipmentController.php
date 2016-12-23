@@ -95,7 +95,14 @@ class AudiovisualEquipmentController extends Controller
      */
     public function show($id)
     {
-		return  AudiovisualEquipment::find($id);
+		$audioVisual =  AudiovisualEquipment::find($id);
+		$audioVisual->loanable;
+		$audioVisual->type;
+		$audioVisual->brand;
+		$audioVisual->model;
+		$audioVisual->loanable->state;
+		
+		return $audioVisual;
     }
 
     /**

@@ -14,15 +14,17 @@ class CreateBibliographicMaterialsTable extends Migration
     {
         Schema::create('bibliographic_materials', function (Blueprint $table) {
             $table->increments('id');
+            $table->string('title');
             $table->integer('year');
             $table->string('signature');
             $table->string('publication_place');
             $table->integer('editorial_id')->unsigned();
-            $table->integer('loanable_id')->unsigned();
+            $table->integer('material_id');
+            $table->string('material_type');
+            
             $table->timestamps();
 
             $table->foreign('editorial_id')->references('id')->on('editorials');
-            $table->foreign('loanable_id')->references('id')->on('loanables');
         });
     }
 

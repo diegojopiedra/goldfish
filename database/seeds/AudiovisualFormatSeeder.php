@@ -12,10 +12,16 @@ class AudiovisualFormatSeeder extends Seeder
      */
     public function run()
     {
-        for($i=0; $i<20;$i++) {
+        $formats  = [
+            "VHS",
+            "DVD",
+            "CD",
+            "Lámina"
+        ];
+        for($i=0; $i<count($formats);$i++) {
              AudiovisualFormat::Create([
-                'name' => 'AudiovisualFormat_ ' . $i,
-             	]);
+                'name' => $formats[$i],
+             ]);
         }
     }
 }

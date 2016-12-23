@@ -4,18 +4,16 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
-<<<<<<< HEAD
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
-use App\Book;
+
 use App\BibliographicMaterial;
 use App\Loanable;
 use APP\LoanCategory;
-=======
+use App\BibliographicMaterialAuthor;
 use App\Book;
-use App\Http\Requests;
-use App\Http\Controllers\Controller;
->>>>>>> SERGIOSU-master
+use App\Author;
+use DB;
 
 class BookController extends Controller
 {
@@ -26,17 +24,7 @@ class BookController extends Controller
      */
     public function index()
     {
-<<<<<<< HEAD
         return Book::all();
-=======
-        /*$book = new Book();
-        $book->title = "Cuentos de mi tia panchita";
-        $book->bacorde = "AU0218";
-        $book->author = "Carm";
-        $book->save();*/
-        $books = Book::all();
-        return $books;
->>>>>>> SERGIOSU-master
     }
 
     /**
@@ -46,45 +34,50 @@ class BookController extends Controller
      */
     public function create()
     {
-<<<<<<< HEAD
-      //
-=======
-        //
->>>>>>> SERGIOSU-master
+        
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
+    
     public function store(Request $request)
     {
-<<<<<<< HEAD
+
         $book = new Book();
-        $bibliographicMateial = new BibliographicMaterial();
+        $bibliographicMaterial = new BibliographicMaterial();
+        $bibliographicMaterialAuthor = new BibliographicMaterialAuthor();
         $loanable = new Loanable();
-                
+    
+        DB::BeginTransaction();
+        try {    
         $loanable->barcode = $request->barcode;
         $loanable->note = $request->note;
         $loanable->state_id = $request->state_id;
-        $loanable->loan_category_id = $loan_category->id;
+        //$loanable->loan_category_id = $request->loan_category_id;
         $loanable->save();
 
-        $bibliographicMateial->year = $request->year;
-        $bibliographicMateial->signature = $request->signature;
-        $bibliographicMateial->publication_place = $request->publication_place;
-        $bibliographicMateial->editorial_id = $request->editorial_id;
-        $bibliographicMateial->loanable_id = $loanable->id;
-        $bibliographicMateial->save(); 
+        $bibliographicMaterial->year = $request->year;
+        $bibliographicMaterial->signature = $request->signature;
+        $bibliographicMaterial->publication_place = $request->publication_place;
+        $bibliographicMaterial->editorial_id = $request->editorial_id;
+        $bibliographicMaterial->loanable_id = $loanable->id;
+        $bibliographicMaterial->save();
 
-        $book->bibliographic_materials_id = $bibliographicMateial->id;
+        $bibliographicMaterialAuthor->bibliographic_material_id = $bibliographicMaterial->id;
+        $bibliographicMaterialAuthor->author_id = $request->Author->id;
+        $bibliographicMaterialAuthor->save();
+
+        $book->bibliographic_materials_id = $bibliographicMaterial->id;
         $book->save();
+        
+        
+
+        } catch (\Exception $e) {
+           DB::rollback();
+           return null;
+        }
+
+        DB::commit();
         return $book;
-=======
-        //
->>>>>>> SERGIOSU-master
+
     }
 
     /**
@@ -118,15 +111,17 @@ class BookController extends Controller
      */
     public function update(Request $request, $id)
     {
-<<<<<<< HEAD
         $book = Book::find($id);
         $bibliographicMaterial = BibliographicMaterial::find($book->bibliographic_materials_id);
         $loanable = Loanable::find($bibliographicMaterial->loanable_id);
+       
+        DB::beginTransaction();
+        try { 
 
         $loanable->barcode = $request->barcode;
         $loanable->note = $request->note;
         $loanable->state_id = $request->state_id;
-        $loanable->loan_category_id = $loan_category->id;
+        //$loanable->loan_category_id = $request->loan_category_id;
         $loanable->save();
 
         $bibliographicMaterial->year = $request->year;
@@ -134,14 +129,19 @@ class BookController extends Controller
         $bibliographicMaterial->publication_place = $request->publication_place;
         $bibliographicMaterial->editorial_id = $request->editorial_id;
         $bibliographicMaterial->loanable_id = $loanable->id;
-        $bibliographicMaterial->save(); 
+        $bibliographicMaterial->save();
 
         $book->bibliographic_materials_id = $bibliographicMaterial->id;
         $book->save();
+
+        } catch (\Exception $e) {
+           DB::rollback();
+           return null;
+        }
+
+        DB::commit();
         return $book;
-=======
-        //
->>>>>>> SERGIOSU-master
+
     }
 
     /**
@@ -152,22 +152,27 @@ class BookController extends Controller
      */
     public function destroy($id)
     {
-<<<<<<< HEAD
         $book = Book::find($id);
-
         $id_BibliographicMaterial = $book->bibliographic_materials_id;
-        $bibliographicMateial = BibliographicMaterial::find($id_BibliographicMaterial);
-        $id_loanable = $bibliographicMateial->loanable_id;
-
+        $bibliographicMaterial = BibliographicMaterial::find($id_BibliographicMaterial);
+        $id_loanable = $bibliographicMaterial->loanable_id;
+        
+        DB::BeginTransaction();
+        try{ 
+        
         Book::destroy($id);
         BibliographicMaterial::destroy($id_BibliographicMaterial);
         Loanable::destroy($id_loanable);
-
+        DB::table('bibliographic_material_authors')->where('bibliographic_material_id', $id_BibliographicMaterial)->delete()
+        
+        
+        } catch (\Exception $e) {
+        DB::rollback();
+        return null;
+        }
+        DB::commit();
         return 1;
     }
-        
-=======
-        //
     }
->>>>>>> SERGIOSU-master
+
 }

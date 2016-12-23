@@ -18,23 +18,8 @@ class Loanable extends Model
 		return $this->belongsTo('App\LoanCategory');
 	}
 	
-	public function audiovisualEquipment() {
-		return $this->hasOne('App\AudiovisualEquipment');
-	}
-	
-	public function copyPeriodicPublication() {
-		return $this->hasOne('App\CopyPeriodicPublication');
-	}
-	
-	public function audiovisualMaterial() {
-		return $this->hasOne('App\AudiovisualMaterial');
-	}
-	
-	public function cartographicMaterial() {
-		return $this->hasOne('App\CartographicMaterial');
-	}
-	
-	public function threeDimensionalObject() {
-		return $this->hasOne('App\ThreeDimensionalObject');
-	}
+	public function specific()
+    {
+        return $this->morphTo('specification');
+    }
 }

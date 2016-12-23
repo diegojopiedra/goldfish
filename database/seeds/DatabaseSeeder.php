@@ -15,6 +15,9 @@ class DatabaseSeeder extends Seeder
         Model::unguard();
 
         $this->call(RoleSeeder::class);
+        $this->call(ProvinceSeeder::class);
+        $this->call(CantonSeeder::class);
+        $this->call(DistrictSeeder::class);
         $this->call(UserSeeder::class);
         $this->call(StudentSeeder::class);
         $this->call(BrandSeeder::class);
@@ -26,7 +29,6 @@ class DatabaseSeeder extends Seeder
         $this->call(AuthorSeeder::class);
         $this->call(EditorialSeeder::class);
         $this->call(PeriodicPublicationSeeder::class);
-        $this->call(LoanCategorySeeder::class);
         $this->call(LoanableSeeder::class);
         $this->call(LoanSeeder::class);
         $this->call(AudiovisualEquipmentSeeder::class);
@@ -39,8 +41,6 @@ class DatabaseSeeder extends Seeder
         $this->call(ArticleKeyWordSeeder::class);
         $this->call(ArticleAuthorSeeder::class);
         $this->call(PenaltySeeder::class);
-        $this->call(TimePenaltySeeder::class);
-        $this->call(MoneyPenaltySeeder::class);
         $this->call(AudiovisualMaterialSeeder::class);
         $this->call(CartographicMaterialSeeder::class);
         $this->call(AudiovisualMaterialKeyWordSeeder::class);
@@ -48,6 +48,9 @@ class DatabaseSeeder extends Seeder
         $this->call(ThreeDimensionalObjectsSeeder::class);
         $this->call(ThreeDimensionalObjectKeyWordSeeder::class);
         $this->call(CartographicMaterialKeyWordSeeder::class);
+        $this->call(GeneralConfigurationSeeder::class);
+        $this->call(CantonSeeder::class);
+        
 
         Model::reguard();
     }

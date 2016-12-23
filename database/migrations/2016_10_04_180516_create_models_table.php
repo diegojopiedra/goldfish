@@ -14,7 +14,6 @@ class CreateModelsTable extends Migration
     {
         Schema::create('models', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('identity_card');
             $table->string('name');
 			$table->timestamps();
         });

@@ -6,11 +6,14 @@ use Illuminate\Http\Request;
 
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\LoanableController;
 use App\User;
 use App\Role;
 use App\Student;
+include ("PenaltyController.php");
 use Auth;
 use JWTAuth;
+
 class UserController extends Controller
 {
 
@@ -25,11 +28,23 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
-        $user = JWTAuth::toUser($request->token);
-        if(isset($user) && $user->role_id == 1){
+        // $user = JWTAuth::toUser($request->token);
+        // if(isset($user) && $user->role_id == 1){
+            $lengthPage = 10;
+
+            $users = User::paginate($lengthPage);
+            foreach ($users as $user) {
+                $user->role;
+            }
+            return $users;
+        // }
+        // return [];
+    }
+    
+    public function getAllUsers()
+    {
             return User::all();
-        }
-        return [];
+        
     }
 
     /**
@@ -73,13 +88,15 @@ class UserController extends Controller
 		$user->name = $request->name;
 		$user->last_name = $request->last_name;
 		$user->email = $request->email;
-		$user->birthdate = $request->birthdate;
 		$user->home_phone = $request->home_phone;
 		$user->cell_phone = $request->cell_phone;
 		$user->password = bcrypt($request->password);
 		$user->next_update_time = $request->next_update_time;
 		$user->active = $request->active;
 		$user->role_id = $request->role_id;
+		$user->province_id = $request->province_id;
+		$user->canton_id = $request->canton_id;
+		$user->district_id = $request->district_id;
 		$user->save();
 		if(isset($user)) {
 		    return $user;	
@@ -103,6 +120,12 @@ class UserController extends Controller
             $userFind = User::find($id);
             $userFind->role;
             $userFind->student;
+            $userFind->penalties;
+            foreach($userFind->penalties as $penalty){
+                $penalty->loan;
+                $penalty->loan->loanable;
+                LoanableController::getRelations($penalty->loan->loanable);
+            }
             return $userFind;
             
         }
@@ -147,13 +170,15 @@ class UserController extends Controller
 		$user->name = $request->name;
 		$user->last_name = $request->last_name;
 		$user->email = $request->email;
-		$user->birthdate = $request->birthdate;
 		$user->home_phone = $request->home_phone;
 		$user->cell_phone = $request->cell_phone;
 		$user->password = bcrypt($request->password);
 		$user->next_update_time = $request->next_update_time;
 		$user->active = $request->active;
 		$user->role_id = $request->role_id;
+		$user->province_id = $request->province_id;
+		$user->canton_id = $request->canton_id;
+		$user->district_id = $request->district_id;
 		$user->save();
 		
 		if(isset($user)) {
@@ -179,17 +204,20 @@ class UserController extends Controller
     }
 	
     public function searchByIdentification(Request $request){
-        //sleep(1);
 
         $student = Student::where('license', $request->identification)->first();
          if(isset($student)){
             $user = User::find($student->user_id);
+            $penalty = new PenaltyController();
             $user->student;
+            $user->penality = $penalty->searchPenaltyes($user->id);
          } else {
             if(is_numeric($request->identification)){
                 $user = User::where('identity_card', $request->identification)->first();
                 if(isset($user)){
+                    $penalty = new PenaltyController();
                     $user->student;
+                    $user->penality = $penalty->searchPenaltyes($user->id);
                 }
             }
          }

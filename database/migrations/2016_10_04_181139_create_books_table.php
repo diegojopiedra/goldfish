@@ -14,9 +14,7 @@ class CreateBooksTable extends Migration
     {
         Schema::create('books', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('bibliographic_materials_id')->unsigned();
 
-            $table->foreign('bibliographic_materials_id')->references('id')->on('bibliographic_materials');
             $table->timestamps();
         });
     }

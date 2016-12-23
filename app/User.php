@@ -50,7 +50,11 @@ class User extends Model implements AuthenticatableContract,
 	}
 	
 	public function authorizing_loans() {
-				return $this->hasMany('App\Loan','authorizing_user_id');
+		return $this->hasMany('App\Loan','authorizing_user_id');
+	}
+	
+	public function penalties(){
+		return $this->hasMany('App\Penalty');
 	}
 	
 }

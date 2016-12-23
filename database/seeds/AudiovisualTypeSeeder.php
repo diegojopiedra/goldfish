@@ -12,13 +12,12 @@ class AudiovisualTypeSeeder extends Seeder
      */
     public function run()
     {
-        $names = ["Portatil", "Cable HMDI", "Cable VGA", "Proyector", "Regleta", "Parlante", "Extension", "TV", "Planta de sonido", "Microfono", "Tablet", "Aula", "Grabadora"];
+        $names = ["Electrónico", "Audio", "Audiovisual"];
 
-        for($i=0;$i < 20; $i++){
-            $name = $names[rand(0,count($names)-1)];
+        for($i=0;$i < count($names); $i++){
         	AudiovisualType::create([
-        		'name' => $name,
-        		]);
+        		'name' => $names[$i],
+        	]);
         }
     }
 }

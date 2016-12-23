@@ -14,9 +14,8 @@ class CartographicMaterialSeeder extends Seeder
     {
         for ($i=11; $i <= 15 ; $i++) { 
          CartographicMaterial::Create([
-                'bibliographic_materials_id' => $i,
                 'cartographic_format_id' => $i,
-                'dimension' => 'Dimension_' . $i,
+                'dimension' => rand(10,800) . " x ". rand(10,800),
              	]);
         }
     }

@@ -96,7 +96,7 @@ class TypeController extends Controller
     {
         $del = Type::destroy($id);
 	
-		if($del1==true) {
+		if($del==true) {
 			return 1;
 		}
 		return 0;

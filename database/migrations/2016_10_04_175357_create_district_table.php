@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateTimePenaltiesTable extends Migration
+class CreateDistrictTable extends Migration
 {
     /**
      * Run the migrations.
@@ -12,11 +12,13 @@ class CreateTimePenaltiesTable extends Migration
      */
     public function up()
     {
-        Schema::create('time_penalties', function (Blueprint $table) {
+         Schema::create('districts', function (Blueprint $table) {
              $table->increments('id');
-            $table->date('penalty_time_finish');
-            $table->timestamps();
-        });
+             $table->string('name');
+             $table->integer('id_canton');
+             $table->integer('number');
+             $table->timestamps();
+         });
     }
 
     /**
@@ -26,6 +28,6 @@ class CreateTimePenaltiesTable extends Migration
      */
     public function down()
     {
-        Schema::drop('time_penalties');
+        Schema::drop('districts');
     }
 }

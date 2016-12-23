@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateMaterialBibliographicAuthorsTable extends Migration
+class CreateProvinceTable extends Migration
 {
     /**
      * Run the migrations.
@@ -12,10 +12,12 @@ class CreateMaterialBibliographicAuthorsTable extends Migration
      */
     public function up()
     {
-        Schema::create('material_bibliographic_authors', function (Blueprint $table) {
-            $table->increments('id');
-            $table->timestamps();
-        });
+        Schema::create('provinces', function (Blueprint $table) {
+             $table->increments('id');
+             $table->string('name');
+             $table->integer('number');
+             $table->timestamps();
+         });
     }
 
     /**
@@ -25,6 +27,6 @@ class CreateMaterialBibliographicAuthorsTable extends Migration
      */
     public function down()
     {
-        Schema::drop('material_bibliographic_authors');
+        Schema::drop('provinces');
     }
 }

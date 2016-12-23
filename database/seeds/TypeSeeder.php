@@ -17,7 +17,7 @@ class TypeSeeder extends Seeder
         for($i=0;$i < 13; $i++){
             Type::create([
                 'name' => $names[$i],
-                ]);
+            ]);
         }
     }
 }

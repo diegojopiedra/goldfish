@@ -11,7 +11,7 @@ class AudiovisualMaterial extends Model
 	}
 	
     public function audiovisualType() {
-		return $this->belongsTo('App\AudiovisualType');
+		return $this->belongsTo('App\AudiovisualType', 'audiovisual_material_type_id');
 	}
 	
 	    public function keyWord() {
@@ -21,7 +21,11 @@ class AudiovisualMaterial extends Model
 		return $this->hasOne('App\Loanable');
 	}
 	
-		public function bibliographicMaterial() {
-		return $this->hasOne('App\BibliographicMaterial');
+	public function editorial(){
+		return $this->belongsTo('App\Editorial');
+	}
+	
+	public function bibliographicMaterial() {
+		return $this->belongsTo('App\BibliographicMaterial', 'bibliographic_materials_id');
 	}
 }

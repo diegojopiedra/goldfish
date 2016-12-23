@@ -54,19 +54,18 @@ class UserSeeder extends Seeder
             'outlook.com',
         ];
 
-
         User::create([
             'name' => 'Diego',
             'email' => 'diegojopiedra@gmail.com',
             'password' => bcrypt('1234'),
             'identity_card' => 207400490,
             'last_name' => 'Piedra Araya',
-            'birthdate' => '1995-06-06',
             'home_phone' => 0,
             'cell_phone' => rand(30000000,89999999),
             'next_update_time' => '2017-04-06',
             'active' => true,
             'role_id' => 1,
+            'id_district' => 1,
         ]);
         $nums = array();
         array_push($nums, 207400490);
@@ -76,16 +75,17 @@ class UserSeeder extends Seeder
             $last_name_2 = $last_names[rand(0,count($last_names)-1)];
             User::create([
                 'name' => $name,
-                'email' => strtolower($name) . "." . strtolower($last_name_1) . "@" . $mailers[rand(0,count($mailers)-1)],
+                'email' => strtolower($name) . "." . strtolower($last_name_1) . $i ."@" . $mailers[rand(0,count($mailers)-1)],
                 'password' => bcrypt('1234'),
                 'identity_card' => $this->getCard($nums),
                 'last_name' => $last_name_1 . " " . $last_name_2,
-                'birthdate' => (rand(80,99) + 1900) . '-' . rand(1,12) . '-'. rand(1,28),
                 'home_phone' => rand(30000000,89999999),
                 'cell_phone' => rand(30000000,89999999),
                 'next_update_time' => (rand(15,17) + 2000) . '-' . rand(1,12) . '-'. rand(1,28),
                 'active' => true,
                 'role_id' => rand(1,3),
+                'id_district' => $i,
+                'direction' => "Contiguo a UCR Tacares, Grecia, Alajuela, Costa Rica",
             ]);
         }
     }

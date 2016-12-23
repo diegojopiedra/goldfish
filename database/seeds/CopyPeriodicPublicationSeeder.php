@@ -18,7 +18,6 @@ class CopyPeriodicPublicationSeeder extends Seeder
 			'volume'=>$i+2,
 			'publication_date'=>'2004-01-'. (10+$i),
 			'periodic_publication_id'=>$i+1,
-			'loanables_id'=>$i+1,
 			]);
 		}
     }

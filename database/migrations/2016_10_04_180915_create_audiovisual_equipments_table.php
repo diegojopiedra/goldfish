@@ -17,13 +17,11 @@ class CreateAudiovisualEquipmentsTable extends Migration
 			$table->integer('brand_id')->unsigned();
 			$table->integer('model_id')->unsigned();
 			$table->integer('type_id')->unsigned();
-			$table->integer('loanable_id')->unsigned();
 			$table->timestamps();
 			
 			$table->foreign('brand_id')->references('id')->on('brands');
 			$table->foreign('model_id')->references('id')->on('models');
 			$table->foreign('type_id')->references('id')->on('types');
-			$table->foreign('loanable_id')->references('id')->on('loanables');
         });
     }
 

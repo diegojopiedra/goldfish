@@ -6,10 +6,14 @@ use Illuminate\Http\Request;
 
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
-Use App\Loan;
-Use App\Loanable;
-Use App\AudiovisualEquipment;
-Use DB;
+use App\Loan;
+use App\Loanable;
+use App\AudiovisualEquipment;
+use App\Penalty;
+use DB;
+use DateTime;
+use DateInterval;
+
 
 class StatisticsController extends Controller
 {
@@ -23,41 +27,138 @@ class StatisticsController extends Controller
         //
     }
 
-	public function getStatistics(Request $request) {
+	public function getLoansByDate(Request $request) {
 		$type = $request->type;
-		$complete_date = $request->date; 
-	
-		$date = explode("-" , $complete_date);
-		$year = $date[0];
-		$month = $date[1];
-		$day = $date[2];
+		$complete_date = $request->date1_stats;
 		
-		$loans_by_year = DB::table('loans')
-	              ->join('loanables','loans.loanable_id','=','loanables.id')
-				  ->join('audiovisual_equipments','loanables.id','=','audiovisual_equipments.loanable_id')
-				  ->where('audiovisual_equipments.type_id','=',$type)
-				  ->whereYear('departure_time','=', $year)
-		          ->get();
+		$initial_date= $request->date1_stats;
+		$final_date= $request->date2_stats;
+	
+// 		$date = explode("-" , $complete_date);
+// 		$day= $date[0];
+// 		$month = $date[1];
+// 		$year = $date[2];
+		
+		$date1 = explode("-" , $initial_date);
+		$day1= $date1[0];
+		$month1 = $date1[1];
+		$year1 = $date1[2];
+		
+		$date2 = explode("-" , $final_date);
+		$day2= $date2[0];
+		$month2 = $date2[1];
+		$year2 = $date2[2];
+		
+// 		$loans_by_year = DB::table('loans')
+// 	              ->join('loanables','loans.loanable_id','=','loanables.id')
+// 				  ->join('audiovisual_equipments','loanables.id','=','audiovisual_equipments.loanable_id')
+// 				  ->where('audiovisual_equipments.type_id','=',$type)
+// 				  ->whereYear('departure_time','=', $year)
+// 		          ->get();
 				  
-		$loans_by_month = DB::table('loans')
-	              ->join('loanables','loans.loanable_id','=','loanables.id')
-				  ->join('audiovisual_equipments','loanables.id','=','audiovisual_equipments.loanable_id')
-				  ->where('audiovisual_equipments.type_id','=',$type)
-				  ->whereYear('departure_time','=', $year)
-				  ->whereMonth('departure_time','=', $month)
-		          ->get();
+// 		$loans_by_month = DB::table('loans')
+// 	              ->join('loanables','loans.loanable_id','=','loanables.id')
+// 				  ->join('audiovisual_equipments','loanables.id','=','audiovisual_equipments.loanable_id')
+// 				  ->where('audiovisual_equipments.type_id','=',$type)
+// 				  ->whereYear('departure_time','=', $year)
+// 				  ->whereMonth('departure_time','=', $month)
+// 		          ->get();
  	  
-		$loans_by_day = DB::table('loans')
-	              ->join('loanables','loans.loanable_id','=','loanables.id')
-				  ->join('audiovisual_equipments','loanables.id','=','audiovisual_equipments.loanable_id')
-				  ->where('audiovisual_equipments.type_id','=',$type)
-				  ->whereYear('departure_time','=', $year)
-				  ->whereMonth('departure_time','=', $month)
-				  ->whereDay('departure_time','=', $day)
-		          ->get();
+// 		$loans_by_day = DB::table('loans')
+// 	              ->join('loanables','loans.loanable_id','=','loanables.id')
+// 				  ->join('audiovisual_equipments','loanables.id','=','audiovisual_equipments.loanable_id')
+// 				  ->where('audiovisual_equipments.type_id','=',$type)
+// 				  ->whereYear('departure_time','=', $year)
+// 				  ->whereMonth('departure_time','=', $month)
+// 				  ->whereDay('departure_time','=', $day)
+// 		          ->get();
 				  
-		return 'Prestamo por año: ' . count($loans_by_year) . ', por mes: ' . count($loans_by_month) . ', por dia: ' . count($loans_by_day);	
-	}
+				
+				$ini = new DateTime($year1 . "-" .$month1 . "-" . $day1);
+                $fin = new DateTime($year2 . "-" .$month2 . "-" . $day2);
+                
+                $rank = DB::table('loans')
+                  ->join('loanables','loans.loanable_id','=','loanables.id')
+				  ->join('audiovisual_equipments','loanables.id','=','audiovisual_equipments.loanable_id')
+				  ->whereBetween('loans.departure_time', [$ini, $fin])
+				  ->where('audiovisual_equipments.type_id','=',$type)->get();
+                  
+		
+
+				$result=array("cant_prestv"=>count($rank) );//,"amountYear"=>count($loans_by_year),"amountMonth"=>count($loans_by_month),"amountDay"=>count($loans_by_day));
+
+		
+    return json_encode($result);
+ }
+ 
+ public function getPendingsByDate(Request $request) {
+		$type = $request->type;
+		$complete_date = $request->date1_stats;
+		
+		$initial_date= $request->date1_stats;
+		$final_date= $request->date2_stats;
+	
+// 		$date = explode("-" , $complete_date);
+// 		$day= $date[0];
+// 		$month = $date[1];
+// 		$year = $date[2];
+		
+		$date1 = explode("-" , $initial_date);
+		$day1= $date1[0];
+		$month1 = $date1[1];
+		$year1 = $date1[2];
+		
+		$date2 = explode("-" , $final_date);
+		$day2= $date2[0];
+		$month2 = $date2[1];
+		$year2 = $date2[2];
+		
+// 		$pendings_by_year = DB::table('loans')
+// 	              ->join('loanables','loans.loanable_id','=','loanables.id')
+// 				  ->join('audiovisual_equipments','loanables.id','=','audiovisual_equipments.loanable_id')
+// 				  ->where('audiovisual_equipments.type_id','=',$type)
+// 				  ->where('loans.user_return_time','>','loans.return_time')
+// 				  ->whereYear('departure_time','=', $year)
+// 		          ->get();
+				  
+// 		$pendings_by_month = DB::table('loans')
+// 	              ->join('loanables','loans.loanable_id','=','loanables.id')
+// 				  ->join('audiovisual_equipments','loanables.id','=','audiovisual_equipments.loanable_id')
+// 				  ->where('audiovisual_equipments.type_id','=',$type)
+// 				  ->where('loans.user_return_time','>','loans.return_time')
+// 				  ->whereYear('departure_time','=', $year)
+// 				  ->whereMonth('departure_time','=', $month)
+// 		          ->get();
+ 	  
+// 		$pendings_by_day = DB::table('loans')
+// 	              ->join('loanables','loans.loanable_id','=','loanables.id')
+// 				  ->join('audiovisual_equipments','loanables.id','=','audiovisual_equipments.loanable_id')
+// 				  ->where('audiovisual_equipments.type_id','=',$type)
+// 				  ->where('loans.user_return_time','>','loans.return_time')
+// 				  ->whereYear('departure_time','=', $year)
+// 				  ->whereMonth('departure_time','=', $month)
+// 				  ->whereDay('departure_time','=', $day)
+// 		          ->get();
+		          
+                $ini = new DateTime($year1 . "-" .$month1 . "-" . $day1);
+                $fin = new DateTime($year2 . "-" .$month2 . "-" . $day2);
+            
+                        
+		    
+		  $rank = DB::table('penalties')
+		              ->join('loans','loans.id','=','penalties.loan_id')
+		              ->join('loanables','loans.loanable_id','=','loanables.id')
+		              ->join('audiovisual_equipments','loanables.id','=','audiovisual_equipments.loanable_id')
+		              ->whereBetween('loans.departure_time', [$ini, $fin])
+		              ->where('audiovisual_equipments.type_id','=',$type)
+		              ->get();
+		  
+		  
+				$result=array("cant_pendv"=>count($rank)); //"amountYear"=>count($pendings_by_year),"amountMonth"=>count($pendings_by_month),"amountDay"=>count($pendings_by_day));
+            
+				  
+    return json_encode($result);
+ }
     /**
      * Show the form for creating a new resource.
      *
