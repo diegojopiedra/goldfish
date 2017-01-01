@@ -32,6 +32,10 @@ Date.prototype.visualFormat = function() {
   return [dd, '/', mm, '/', this.getFullYear()].join(''); // padding
 };
 
+function isNumeric(n) {
+  return !isNaN(parseFloat(n)) && isFinite(n);
+}
+
 const LoanPanel = { 
 	template: "#loanTemplate",
 	data: function () {
@@ -83,6 +87,8 @@ const LoanPanel = {
 	  		this.currentLoans = [];
 	  		this.auto = 'true';
 	  		this.return_time = (new Date()).visualFormat();
+	  		
+  				console.log("/************ return_hour - 4 **********************/");
 	  		if((new Date()).getDay() == 6){
 				var array = this.general_cofiguration.saturday_hour_closing.split(":");
 				array.pop();
@@ -113,13 +119,17 @@ const LoanPanel = {
   			if(val){
   				var date = new Date();
   				this.return_time = date.visualFormat();
+  				console.log("/************ return_hour - 1 **********************/");
   				this.return_hour = (date.getDay() == 6)?this.saReturn():this.weReturn();
   			}
   		},
   		return_hour:function (newVal, oldVal) {
-  			if(newVal == null || newVal == ''){
+  			
+  				console.log("/************ return_hour - 2 **********************/");
+  				console.log('newVal = ', newVal, 'oldVal = ', oldVal);
+  		/*	if(newVal == null || newVal == ''){
   				this.return_hour = oldVal;
-  			}
+  			}*/
   		},
   		textTime: function (val){
   			localStorage.setItem("textTime", val);
@@ -190,15 +200,17 @@ const LoanablePanel = {
 	template: '#loanableTemplate',
 	data: function () {
 		return {
-			type: '',
+			type: 'ss',
 			loanable: {},
 		  	init: initLoanablePanel(this)
 		}
 	},
 	methods:{
-  		
 	},
 	watch: {
+		$route: function () {
+			initLoanablePanel(this);
+		},
 		type: function (newVal, oldVal) {
 			console.log('type newVal = ', newVal, ', oldVal = ', oldVal);
 		},
@@ -418,6 +430,7 @@ const SearchPanel = {
 	},
 	watch: {
 		$route: function(news){
+			this.paginate.data = null;
 			initSearchPanel(this);
 		},
 		view: function(view){
@@ -901,6 +914,7 @@ function getPendingsByDate(parent) { //se llama desde el const
 }
 
 function datepicker_init(parent) {
+	console.log('datepicker_init')
 	$('#datePicker').datepicker({
 	    language: "es",
 		maxViewMode: 2,
@@ -921,8 +935,10 @@ function datepicker_init(parent) {
 	});
 	
 	$('#datePicker').on('change focusout', function (evn) {
+		console.log('datePicker -> change focusout,  $(this).val() = ',  $(this).val());
 		if(parent != null){
 			parent.return_time = $(this).val();
+			parent.return_hour = (date.getDay() == 6)?parent.saReturn():parent.weReturn();
 		}
 	});
 	
@@ -1032,7 +1048,10 @@ function getUserData(identification, parent) {
 					getCurrentLoans(parent);	
 				}else{
 					parent.searchUser.state = "default";
-					message("Antes de hacer un prestamo al usuario " + parent.user.identification + ", debe hacer una actualzación de datos", "Actulizar usuario", "Actualizar");
+					message("Antes de hacer un prestamo al usuario " + parent.user.identification + " - " + msg.name + " " + msg.last_name + ", debe hacer una actualzación de datos", "Actulizar usuario", "Actualizar", function() {
+						closeModal();
+						router.push('usuario/' + msg.id);
+					});
 				}
 			}else{
 				var id = parent.user.identification;
@@ -1880,6 +1899,8 @@ function initLoanPanel(parent) {
 	general_cofiguration.done(function (msg) {
 		console.log(msg);
 		parent.general_cofiguration = msg;
+		
+  				console.log("/************ return_hour - 3 **********************/");
 		if((new Date()).getDay() == 6){
 			var array = msg.saturday_hour_closing.split(":");
 			array.pop();
@@ -2056,22 +2077,58 @@ function showHelp() {
 }
 
 function initLoanablePanel(parent){
-	var loanableAjax = $.ajax({
-			method: "GET",
-			dataType: 'json',
-			url: wss + "loanable/" + parent.$route.params.id,
-			data:{
-				token: sessionStorage.getItem('token')
-			},
-			context: parent
-		});
-		
+	
+	if(!isNumeric(parent.$route.params.id)){
+		var params = parent.$route.params.id.split('.');
+		if(params[0] == 'nuevo'){
+			setTimeout(function () {
+				parent.type = params[1];
+				parent.loanable.state_id = 1;
+				parent.loanable.state = { "id": 1, "description": "Disponible" };
+			}, 100);
+		}
+	}else{
+		var loanableAjax = $.ajax({
+				method: "GET",
+				dataType: 'json',
+				url: wss + "loanable/" + parent.$route.params.id,
+				data:{
+					token: sessionStorage.getItem('token')
+				},
+				context: parent
+			});
+			
 		loanableAjax.done(function (msg) {
 			console.log(msg);
 			parent.loanable = msg;
+			switch (parent.loanable.specification_type) {
+				case 'App\\AudiovisualEquipment':
+					parent.type = 'equipo';
+					break;
+				case 'App\\CopyPeriodicPublication':
+					parent.type = 'publicacion';
+					break;
+				case 'App\\BibliographicMaterial':
+					switch (parent.loanable.specific.material_type) {
+						case 'App\\CartographicMaterial':
+							parent.type = 'cartografico';
+							break;
+						case 'App\\ThreeDimensionalObject':
+							parent.type = 'tridimensional';
+							break;
+						case 'App\\Book':
+							parent.type = 'libro';
+							break;
+						case 'App\\AudiovisualMaterial':
+							parent.type = 'aduiovisual';
+							break;
+					}
+					break;
+			}
 		});
 		loanableAjax.fail(function () {
 			parent.loanable = {};
 			toastr['error']('Al cargar la información', 'Ha ocurrido un error');
 		});
+	}
 }

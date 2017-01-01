@@ -1550,7 +1550,7 @@
 								<button class="btn btn-default" type="button">
 									<i class="fa fa-times"></i>
 								</button>
-								<button class="btn btn-primary" type="button" v-on:click="search()">
+								<button class="btn btn-info" type="button" v-on:click="search()">
 									<i class="fa fa-search"></i>
 									Buscar
 								</button>
@@ -1564,6 +1564,51 @@
 								{{type.name}}
 							</label>
 						</p>
+					</div>
+					<div class="col-xs-12">
+						<div class="btn-group pull-right">
+							<div class="btn-group ">
+								<button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+									<i class="fa fa-plus-square" aria-hidden="true"></i> Agregar activo <span class="caret"></span>
+								</button>
+								<ul class="dropdown-menu">
+									<li>
+										<a href="#/activo/nuevo.equipo">
+											<i class="fa fa-laptop"></i> Equipo audiovisual
+										</a>
+									</li>
+									<li>
+										<a href="#/activo/nuevo.publicacion">
+											<i class="fa fa-newspaper-o"></i> Publicación periódica
+										</a>
+									</li>
+									<li>
+										<a href="#/activo/nuevo.libro">
+											<i class="fa fa-book"></i> Libro
+										</a>
+									</li>
+									<li>
+										<a href="#/activo/nuevo.cartografico">
+											<i class="fa fa-map-o"></i> Material cartográfico
+										</a>
+									</li>
+									<li>
+										<a href="#/activo/nuevo.aduiovisual">
+											<i class="fa fa-file-video-o"></i> Material audiovisual
+										</a>
+									</li>
+									<li>
+										<a href="#/activo/nuevo.tridimensional">
+											<i class="fa fa-certificate"></i> Objeto tridimensional
+										</a>
+									</li>
+								</ul>
+							</div>
+							<!--<button class="btn btn-default">
+								<i class="fa fa-download" aria-hidden="true"></i> Importar .CSV
+							</button>-->
+						</div>
+							
 					</div>
 				</div>
 				<div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
@@ -1634,7 +1679,7 @@
 					</div>
 				</div>
 			</div>
-			<div class="container-fluid" style="margin-bottom: 15px;">
+			<div class="container-fluid" style="margin-bottom: 15px;" v-if="paginate.data != null">
 				<div class="row">
 					<!--<div class="col-xs-12 col-sm-6 col-md-4">
 						<!--<div class="input-group">
@@ -1688,7 +1733,17 @@
 					</div>
 				</div>
 			</div>
-			<div class="container-fluid col-xs-12" v-if="view == 'list'">
+			<div v-if="paginate.data == null" class="container-fluid col-xs-12">
+				<div class="text-center bg-warning col-xs-12 text-warning" style="margin-top:10px; margin-bottom:10px;font-size: 25px;border: 1px solid #999;border-radius: 6px;">
+					<span class="fa-stack fa-lg text-warning" style="font-size: 3.5em;">
+						<i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw fa-stack-2x text-warning"></i>
+						<i class="fa fa-archive fa-stack-1x text-warning"></i>
+					</span>
+					<br>
+					<p>Cargando ...</p>
+				</div>
+			</div>
+			<div class="container-fluid col-xs-12" v-if="paginate.data != null && view == 'list'">
 				<div class="panel panel-default shadow">
 					<div class="panel-body">
 						<table class="table table-hover">
@@ -1806,7 +1861,7 @@
 					</div>
 				</div>
 			</div>
-			<div v-if="view == 'card'">
+			<div v-if="paginate.data != null && view == 'card'">
 				<div class="col-xs-12 form-inline" style="margin-bottom: 15px;">
 					<div class="input-group">
 						<span class="input-group-addon">
@@ -1974,7 +2029,7 @@
 					</div>
 				</div>
 			</div>
-			<div class="container-fluid" style="margin-bottom: 15px;">
+			<div class="container-fluid" style="margin-bottom: 15px;" v-if="paginate.data != null">
 				<div class="row">
 					<div class="col-xs-12 col-sm-9">
 						<div class="btn-toolbar" role="toolbar">
@@ -2006,149 +2061,404 @@
 		</div>
 	</div>
 	<div style="display:none" id="loanableTemplate">
-		<div class="col-xs-12 col-sm-6 col-md-4" :listing-id="init">
-			<div class="well container-fluid">
-				<h4>Activo</h4>
-				<form class="bs-example bs-example-form">
-					<div class="input-group" style="margin-bottom: 5px;">
-						<span class="input-group-addon" id="barcode">Código de barras</span>
-						<input v-model="loanable.barcode" type="text" class="form-control" placeholder="Código de barras" aria-describedby="barcode">
+		<div class="container-fluid" :listing-id="init">
+			<div class="col-xs-12 col-sm-6">
+				<div class="panel panel-default card-wrapper shadow">
+					<div class="card-icon">
+						<div id="icon-box" style="height: 250px;">
+							<span>
+								<i class="fa fa-lg" v-bind:class="{
+									'fa-laptop': type=='equipo',
+									'fa-newspaper-o': type=='publicacion',
+									'fa-map-o': type=='cartografico',
+									'fa-certificate': type=='tridimensional',
+									'fa-book': type=='libro',
+									'fa-file-video-o': type=='aduiovisual',
+								}"></i>
+								<p style="font-size: 20px;line-height: 1;">
+									<span v-if="type=='equipo'">
+										Equipo audiovisual
+									</span>
+									<span v-if="type=='publicacion'">
+										Publicación periódica
+									</span>
+									<span v-if="type=='cartografico'">
+										Material cartográfico
+									</span>
+									<span v-if="type=='tridimensional'">
+										Objeto tridimensional
+									</span>
+									<span v-if="type=='libro'">
+										Libro
+									</span>
+									<span v-if="type=='aduiovisual'">
+										Material audiovisual
+									</span>
+								</p>
+							</span>
+						</div>
 					</div>
-					<button style="margin-bottom: 5px;" class="btn btn-default" type="button" v-if="loanable.specification_type != null && loanable.specification_type != ''">
-					  Tipo:
-					  	<span v-if="loanable.specification_type == 'App\\BibliographicMaterial'">
-							<span v-if="loanable.specific.material_type == 'App\\Book'">
-								<i class="fa fa-book"></i>
-								Libro
-							</span>
-							<span v-if="loanable.specific.material_type == 'App\\CartographicMaterial'">
-								<i class="fa fa-map-o"></i>
-								Material cartográfico
-							</span>
-							<span v-if="loanable.specific.material_type == 'App\\ThreeDimensionalObject'">
-								<i class="fa fa-certificate"></i>
-								Objeto tridimensional
-							</span>
-							<span v-if="loanable.specific.material_type == 'App\\AudiovisualMaterial'">
-								<i class="fa fa-file-video-o"></i>
-								Material audiovisual
-							</span>
-						</span>
-						<span v-if="loanable.specification_type == 'App\\AudiovisualEquipment'">
-							<i class="fa fa-laptop"></i>
-							Equipo audiovisual
-						</span>
-						<span v-if="loanable.specification_type == 'App\\CopyPeriodicPublication'">
-							<i class="fa fa-newspaper-o"></i>
-							Publicación periódica
-						</span>
-					</button>
-					<div class="input-group" style="margin-bottom: 5px;" v-else>
-						<span class="input-group-addon" id="specification_type">Tipo</span>
-						<select class="form-control" v-model="type">
-							 <option value="AudiovisualEquipment">
-							 	Equipo audiovisual
-							 </option>
-							 <option value="CopyPeriodicPublication">
-							 	Publicación periodica
-							 </option>
-							 <option value="Book">
-							 	Libro
-							 </option>
-							 <option value="CartographicMaterial">
-							 	Material cartográfico
-							 </option>
-							 <option value="AudiovisualMaterial">
-							 	Material audiovisual
-							 </option>
-							 <option value="ThreeDimensionalObject">
-							 	Objeto tridimensional
-							 </option>
+					<div class="card-content">
+						<h3 style="margin-top: 5px;margin-bottom: 5px;">
+							<b>
+								{{loanable.named}}
+							</b>
+							<i v-if="!loanable.named" class="text-muted">
+								Sin datos
+							</i>
+						</h3>
+						<p class="text-success">
+							Codigo de barras: 
+							<b>
+								{{loanable.barcode}}
+							</b>
+							<i v-if="!loanable.barcode" class="text-muted">
+								Código de barras
+							</i>
+							<button class="btn btn-primary btn-xs" v-bind:disabled="loanable.state_id == 2">
+								<span class="fa fa-edit"></span>
+								Editar
+							</button>
+						</p>
+						<span>Estado:</span>
+						<div class="btn-group">
+							<button v-bind:class="{
+								'btn-success': (loanable.state_id == 1), 
+								'btn-primary': (loanable.state_id == 2), 
+								'btn-default': (loanable.state_id == 3 || loanable.state_id == 4)
+							}" v-bind:disabled="loanable.state_id == 2" type="button" class="btn dropdown-toggle btn-sm" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+								<i class="fa" v-bind:class="{
+									'fa-check-circle-o': (loanable.state_id == 1),
+									'fa-circle-o': (loanable.state_id == 2),
+									'fa-minus-circle': (loanable.state_id == 3),
+									'fa-cog': (loanable.state_id == 4)
+								}"></i>
+								{{loanable.state.description}}
+								<span class="caret"></span>
+							</button>
+						  	<ul class="dropdown-menu">
+								<li style="cursor: pointer" v-if="loanable.state_id != 1">
+									<a>
+										<i class="fa fa-check-circle-o"></i> Disponible
+									</a>
+								</li>
+								<li style="cursor: pointer" v-if="loanable.state_id != 3">
+									<a>
+										<i class="fa fa-minus-circle"></i> Fuera de servicio
+									</a>
+								</li>
+								<li style="cursor: pointer" v-if="loanable.state_id != 4">
+									<a>
+										<i class="fa fa-cog"></i>  En reparación
+									</a>
+								</li>
+						  	</ul>
+						</div>
+						<div style="margin-top: 5px;">
+							<span>Notas:</span>
+							<textarea style="width: 100%; resize:none;" v-model="loanable.note" class="form-control"></textarea>
+						</div>
+					</div>
+				</div>
+				<div class="list-group shadow" v-if="type == 'equipo'">
+					<h4 class="list-group-item active">
+						<i class="fa fa-info-circle" aria-hidden="true"></i>
+						Detalles
+					</h4>
+					<p class="list-group-item">
+						<b>
+							Tipo:
+						</b>
+						{{loanable.specific.type.name}}
+						<select v-model="loanable.specific.type">
+							
 						</select>
-					</div>
-					<!--<div class="dropdown" style="margin-bottom: 5px;" v-if="loanable.state_id != 2">
-						<button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-						    Estado:
-						    <span v-if="loanable.state_id == 1" class="text-success">
-						    	<i class="fa fa-check-circle-o"></i>
-						    	Disponible
-						    </span>
-						    <span v-if="loanable.state_id == 3" class="text-muted">
-						    	<i class="fa fa-minus-circle"></i>
-						    	Fuera de servicio
-						    </span>
-						    <span v-if="loanable.state_id == 4" class="text-muted">
-						    	<i class="fa fa-cog"></i>
-						    	En reparación
-						    </span>
-						    <span class="caret"></span>
-						  </button>
-						<ul class="dropdown-menu">
-							<li>
-								<a v-on:click="loanable.state_id = 1" class="pointer">
-									<i class="fa fa-check-circle-o"></i>
-									Disponible
-								</a>
-							</li>
-							<li>
-								<a v-on:click="loanable.state_id = 3" class="pointer">
-									<i class="fa fa-minus-circle"></i>
-									Fuera de servicio
-								</a>
-							</li>
-							<li>
-								<a v-on:click="loanable.state_id = 4" class="pointer">
-									<i class="fa fa-cog"></i>
-									En reparación
-								</a>
-							</li>
-						</ul>
-					</div>-->
-					<button class="btn btn-default" type="button" v-if="loanable.state_id == 2">
-						Estdo:
-						<span class="text-info">
-					    	<i class="fa fa-circle-o"></i>
-					    	Prestado
-					    </span>
-					</button>
-					<br>
-					<small v-if="loanable.state_id == 2" style="margin-bottom: 5px;">
-						(Para cambiar el estado debe terminar el prestamo primero)
-					</small>
-					<div class="input-group" style="margin-bottom: 5px;" v-else>
-						<span class="input-group-addon" id="specification_type">Estado</span>
-						<select class="form-control" v-model="loanable.state_id">
-							 <option value="1">
-							 	Disponible
-							 </option>
-							 <option value="3">
-							 	Fuera de servicio
-							 </option>
-							 <option value="4">
-							 	En reparación
-							 </option>
-						</select>
-					</div>
-				</form>
-				<!--{{loanable}}-->
+						<button class="btn btn-primary btn-xs pull-right" v-bind:disabled="loanable.state_id == 2">
+							<span class="fa fa-edit"></span>
+							Editar
+						</button>
+					</p>
+					<p class="list-group-item">
+						<b>
+							Marca:
+						</b>
+						{{loanable.specific.brand.name}}
+						<button class="btn btn-primary btn-xs pull-right" v-bind:disabled="loanable.state_id == 2">
+							<span class="fa fa-edit"></span>
+							Editar
+						</button>
+					</p>
+					<p class="list-group-item">
+						<b>
+							Modelo:
+						</b>
+						{{loanable.specific.model.name}}
+						<button class="btn btn-primary btn-xs pull-right" v-bind:disabled="loanable.state_id == 2">
+							<span class="fa fa-edit"></span>
+							Editar
+						</button>
+					</p>
+				</div>
+				<div class="list-group shadow" v-if="type == 'cartografico' || type == 'libro' || type == 'aduiovisual' || type == 'tridimensional'">
+					<h4 class="list-group-item active">
+						<i class="fa fa-info-circle" aria-hidden="true"></i>
+						Detalles
+					</h4>
+					<p class="list-group-item">
+						<b>
+							Titulo:
+						</b>
+						{{loanable.specific.title}}
+						<button class="btn btn-primary btn-xs pull-right" v-bind:disabled="loanable.state_id == 2">
+							<span class="fa fa-edit"></span>
+							Editar
+						</button>
+					</p>
+					<p class="list-group-item">
+						<b>
+							Signatura:
+						</b>
+						{{loanable.specific.signature}}
+						<button class="btn btn-primary btn-xs pull-right" v-bind:disabled="loanable.state_id == 2">
+							<span class="fa fa-edit"></span>
+							Editar
+						</button>
+					</p>
+					<p class="list-group-item">
+						<b>
+							Editorial:
+						</b>
+						{{loanable.specific.editorial.name}}
+						<button class="btn btn-primary btn-xs pull-right" v-bind:disabled="loanable.state_id == 2">
+							<span class="fa fa-edit"></span>
+							Editar
+						</button>
+					</p>
+					<p class="list-group-item">
+						<b>
+							Año de publicación:
+						</b>
+						{{loanable.specific.year}}
+						<button class="btn btn-primary btn-xs pull-right" v-bind:disabled="loanable.state_id == 2">
+							<span class="fa fa-edit"></span>
+							Editar
+						</button>
+					</p>
+					<p class="list-group-item">
+						<b>
+							Lugar de publicación:
+						</b>
+						{{loanable.specific.publication_place}}
+						<button class="btn btn-primary btn-xs pull-right" v-bind:disabled="loanable.state_id == 2">
+							<span class="fa fa-edit"></span>
+							Editar
+						</button>
+					</p>
+					<p class="list-group-item" v-if="loanable.specific.material_type == 'App\\CartographicMaterial'">
+						<b>
+							Dimensiones:
+						</b>
+						{{loanable.specific.material.dimension}}
+						<button class="btn btn-primary btn-xs pull-right" v-bind:disabled="loanable.state_id == 2">
+							<span class="fa fa-edit"></span>
+							Editar
+						</button>
+					</p>
+					<p class="list-group-item" v-if="loanable.specific.material_type == 'App\\ThreeDimensionalObject'">
+						<b>
+							Descripción física:
+						</b>
+						{{loanable.specific.material.physical_description}}
+						<button class="btn btn-primary btn-xs pull-right" v-bind:disabled="loanable.state_id == 2">
+							<span class="fa fa-edit"></span>
+							Editar
+						</button>
+					</p>
+					<p class="list-group-item" v-if="loanable.specific.material_type == 'App\\AudiovisualMaterial'">
+						<b>
+							Formato:
+						</b>
+						{{loanable.specific.material.audiovisual_format.name}}
+						<button class="btn btn-primary btn-xs pull-right" v-bind:disabled="loanable.state_id == 2">
+							<span class="fa fa-edit"></span>
+							Editar
+						</button>
+					</p>
+					<p class="list-group-item" v-if="loanable.specific.material_type == 'App\\AudiovisualMaterial'">
+						<b>
+							Tipo:
+						</b>
+						{{loanable.specific.material.audiovisual_type.name}}
+						<button class="btn btn-primary btn-xs pull-right" v-bind:disabled="loanable.state_id == 2">
+							<span class="fa fa-edit"></span>
+							Editar
+						</button>
+					</p>
+				</div>
 			</div>
-			<div class="well container-fluid" v-if="loanable.specification_type == 'App\\AudiovisualEquipment'">
-				<form class="bs-example bs-example-form">
-					<div class="input-group" style="margin-bottom: 5px;">
-						<span class="input-group-addon">Marca</span>
-						<input v-model="loanable.specific.brand.name" type="text" class="form-control">
+			<div class="col-xs-12 col-sm-6">
+				<div class="panel panel-info shadow">
+					<div class="panel-heading">
+						<b>
+							<i class="fa fa-history" aria-hidden="true"></i> Historial
+						</b>
 					</div>
-					<div class="input-group" style="margin-bottom: 5px;">
-						<span class="input-group-addon">Modelo</span>
-						<input v-model="loanable.specific.model.name" type="text" class="form-control">
+					<div class="panel-body">
+						<div class="row">
+							<div class="col-xs-6">
+								<div class="input-group">
+									<span class="input-group-addon">
+										<i class="fa fa-clock-o" aria-hidden="true"></i>
+										Periodo	
+									</span>
+									<select class="form-control">
+										<option>
+											Hoy
+										</option>
+										<option>
+											Esta semana
+										</option>
+										<option>
+											La semana pasada
+										</option>
+										<option>
+											El útimo mes
+										</option>
+										<option>
+											El mes pasado
+										</option>
+										<option>
+											El útimo año
+										</option>
+										<option>
+											Personalizado ...
+										</option>
+									</select>
+								</div>	
+							</div>
+							<div class="col-xs-6">
+								<div class="input-group">
+									<span class="input-group-addon">
+										<i class="fa fa-hand-paper-o" aria-hidden="true"></i>
+										Acción	
+									</span>
+									<select class="form-control">
+										<option>
+											Todas
+										</option>
+										<option>
+											Prestamos
+										</option>
+										<option>
+											Devoluciones
+										</option>
+										<option>
+											Cambios de datos
+										</option>
+									</select>
+								</div>
+							</div>
+						</div>
+						<div class="container-fluid" style="margin-top: 10px;">
+							<div class="row">
+								<div class="input-group col-xs-12">
+									<span class="input-group-addon">
+										<i class="fa fa-calendar" aria-hidden="true"></i>
+										Desde	
+									</span>
+									<input type="text" class="form-control" placeholder="Fecha" disabled="disabled">
+									<span class="input-group-addon">
+										<i class="fa fa-calendar" aria-hidden="true"></i>
+										Hasta	
+									</span>
+									<input type="text" class="form-control" placeholder="Fecha" disabled="disabled">
+								</div>
+							</div>
+								
+						</div>
+						<table class="table table-hover">
+							<thead>
+								<tr>
+									<th>Fecha</th>
+									<th>Hora</th>
+									<th>Acción</th>
+									<th></th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td>
+										02/11/2017	
+									</td>
+									<td>04:34 pm</td>
+									<td>Prestamo</td>
+									<td>
+										<button class="btn btn-success btn-xs pull-right">
+											<span class="fa fa-info-circle"></span>
+											Detalles
+										</button>
+									</td>
+								</tr>
+								<tr>
+									<td>
+										02/11/2017	
+									</td>
+									<td>04:33 pm</td>
+									<td>Devolución</td>
+									<td>
+										<button class="btn btn-success btn-xs pull-right">
+											<span class="fa fa-info-circle"></span>
+											Detalles
+										</button>
+									</td>
+								</tr>
+								<tr>
+									<td>
+										02/11/2017	
+									</td>
+									<td>04:32 pm</td>
+									<td>Prestamo</td>
+									<td>
+										<button class="btn btn-success btn-xs pull-right">
+											<span class="fa fa-info-circle"></span>
+											Detalles
+										</button>
+									</td>
+								</tr>
+								<tr>
+									<td>
+										02/11/2017	
+									</td>
+									<td>04:31 pm</td>
+									<td>Cambio de datos</td>
+									<td>
+										<button class="btn btn-success btn-xs pull-right">
+											<span class="fa fa-info-circle"></span>
+											Detalles
+										</button>
+									</td>
+								</tr>
+								<tr>
+									<td>
+										02/11/2017	
+									</td>
+									<td>04:30 pm</td>
+									<td>Creado</td>
+									<td>
+										<button class="btn btn-success btn-xs pull-right">
+											<span class="fa fa-info-circle"></span>
+											Detalles
+										</button>
+									</td>
+								</tr>
+							</tbody>
+						</table>
 					</div>
-					<div class="input-group" style="margin-bottom: 5px;">
-						<span class="input-group-addon">Tipo</span>
-						<input v-model="loanable.specific.type.name" type="text" class="form-control">
-					</div>
-				</form>
+				</div>
 			</div>
+			{{loanable}}
 		</div>
+			
 	</div>
 	<div style="display:none" id="configTemplate">
 		<div class="col-xs-12 col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-2">
