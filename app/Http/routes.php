@@ -1,14 +1,13 @@
 <?php
-/*
-|--------------------------------------------------------------------------
-| Application Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register all of the routes for an application.
-| It's a breeze. Simply tell Laravel the URIs it should respond to
-| and give it the controller to call when that URI is requested.
-|
-*/
+use Illuminate\Http\Request; 
+use App\Http\Controllers\LoanableController; 
+use App\Http\Controllers\TypeController; 
+use App\Http\Controllers\BrandController; 
+use App\Http\Controllers\AudiovisualModelController; 
+use App\Http\Controllers\StateController; 
+use App\Http\Controllers\LoanController; 
+use App\Http\Controllers\PenaltyController; 
+
 Route::get('/', function () {
     return "API";
 });
@@ -43,8 +42,47 @@ Route::group(['middleware' => 'jwt-auth'], function () {
     Route::resource('district', 'DistrictController');
     Route::resource('province','ProvinceController');
     Route::post('search-loanable','LoanableController@search');
+    Route::post('loanable-panel-resource', function(){
+    	return loanablePanelResource($request);
+    });
+    Route::get('loanable-panel-resource', function(Request $request){
+    	return loanablePanelResource($request);
+    });
+    
+    Route::get('dashboard-panel-resource', function(Request $request){
+    	return dashboardPanleResource($request);
+    });
+    
+    Route::post('dashboard-panel-resource', function(Request $request){
+    	return dashboardPanleResource($request);
+    });
 });
 
+	function dashboardPanleResource(Request $request){
+		$respone = array();
+		$penaltyController = new PenaltyController();
+		$response['penalties'] = json_decode($penaltyController->index()->toJson());
+		return $response;
+	}
+
+ function loanablePanelResource (Request $request){
+	$response = [];
+	$loanableController = new LoanableController();
+	$response['loanable'] = $loanableController->show($request->loanable);
+	$typeController = new TypeController();
+	$response['types'] = $typeController->index();
+	$brandController = new BrandController();
+	$response['brands'] = $brandController->index();
+	$modelController = new AudiovisualModelController();
+	$response['models'] = $modelController->index();
+	$stateController = new StateController();
+	$response['states'] = $stateController->index();
+	
+	$loansController = new LoanController();
+	$response['loans'] = $loansController->getActiveHistoryById($request->loanable);
+	
+	return $response; 
+}
 
 Route::get('loan-test', 'LoanController@store');
 Route::get('get-all-users','UserController@getAllUsers');

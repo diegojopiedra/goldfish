@@ -7,7 +7,9 @@ use Illuminate\Http\Request;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use App\Loanable;
+use App\Loan;
 use App\AudiovisualEquipment;
+use App\Http\Controllers\LoanController; 
 
 class LoanableController extends Controller
 {
@@ -112,30 +114,31 @@ class LoanableController extends Controller
      */
     public function destroy($id)
     {
-        //
+       /* $loanController = new LoanController();
+        $loans = $loanController->getLoansByLoanableId($id);
+        
+        try{
+           foreach($loans as $loan){
+                Loan::destroy($loan->id);
+            }
+            $loanable = Loanable::find($id);
+            $loanable->specific;
+            if($loanable->specification_type == "App\BibliographicMaterial"){
+                $loanable->specific->material->delete();
+            }
+            $loanable->specific->delete();
+            $loanable->delete();
+        }catch (Exception $e) {
+            return 'Error when destroy';
+        }*/ 
+            
     }
     
     public function search(Request $request){
         $list = Loanable::paginate($request->pageLength);
         foreach($list as $item){
             $item->state;
-            if($item->specification_type == "App\AudiovisualEquipment"){
-                $item->specific->brand;
-                $item->specific->model;
-                $item->specific->type;
-            }elseif($item->specification_type == "App\CopyPeriodicPublication"){
-                $item->specific->article;
-                $item->specific->periodicPublication;
-                $item->specific->periodicPublication->editorial;
-            }elseif($item->specification_type == "App\BibliographicMaterial"){
-                $item->specific->authors;
-                $item->specific->editorial;
-                $item->specific->material;
-                if($item->specific->material_type == 'App\AudiovisualMaterial'){
-                    $item->specific->material->audiovisualFormat;
-                    $item->specific->material->audiovisualType;
-                }
-            }
+            $this->getRelations($item);
         }
         return $list;
     }
@@ -143,17 +146,26 @@ class LoanableController extends Controller
     public static function getRelations($loanable){
         try{
              if($loanable->specification_type == "App\AudiovisualEquipment"){
-                $loanable->specific->brand;
-                $loanable->specific->model;
-                $loanable->specific->type;
+                $brand = $loanable->specific->brand;
+                $mode = $loanable->specific->model;
+                $type = $loanable->specific->type;
+                
+                $loanable->named = $type->name . " - " . $brand->name . " - " . $mode->name;
             }elseif($loanable->specification_type == "App\CopyPeriodicPublication"){
+                $specific = $loanable->specific;
+                $publication = $loanable->specific->periodicPublication;
+                
                 $loanable->specific->article;
-                $loanable->specific->periodicPublication;
                 $loanable->specific->periodicPublication->editorial;
+                
+                $loanable->named = $publication->title . " no." . $specific->number . " vol." . $specific->volume;
             }elseif($loanable->specification_type == "App\BibliographicMaterial"){
+                $specific = $loanable->specific;
                 $loanable->specific->authors;
                 $loanable->specific->editorial;
                 $loanable->specific->material;
+                
+                $loanable->named = $specific->title . ' - ' . $specific->editorial->name;
                 if($loanable->specific->material_type == 'App\AudiovisualMaterial'){
                     $loanable->specific->material->audiovisualFormat;
                     $loanable->specific->material->audiovisualType;

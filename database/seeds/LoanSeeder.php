@@ -19,6 +19,7 @@ class LoanSeeder extends Seeder
                 'user_return_time'          =>  '2016-11-' . $i . ' 02:20:' . ($i + 10),
         		'user_id'              =>  $i+1,
         		'authorizing_user_id'  =>  $i+1,
+        		'receiving_user_id'  =>  $i+1,
         		'loanable_id'          =>  $i+1,
         		]);
 

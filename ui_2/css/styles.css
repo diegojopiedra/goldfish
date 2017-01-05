@@ -65,3 +65,47 @@ input[type="radio"], input[type="checkbox"] {
 .pointer{
     cursor: pointer;
 }
+
+#icon-box span {
+  display: block;
+  position: absolute;
+  height: 150px;
+  width: 150px;
+  color: #fff;
+  text-shadow: #337398 1px 1px, #337398 2px 2px, #337398 3px 3px, #337398 4px 4px, #337398 5px 5px, #337398 6px 6px, #337398 7px 7px, #337398 8px 8px, #337398 9px 9px, #337398 10px 10px, #337398 11px 11px, #337398 12px 12px, #337398 13px 13px, #337398 14px 14px, #337398 15px 15px, #337398 16px 16px, #337398 17px 17px, #337398 18px 18px, #337398 19px 19px, #337398 20px 20px, #337398 21px 21px, #337398 22px 22px, #337398 23px 23px, #337398 24px 24px, #337398 25px 25px, #337398 26px 26px, #337398 27px 27px, #337398 28px 28px, #337398 29px 29px, #337398 30px 30px, #337398 31px 31px, #337398 32px 32px, #337398 33px 33px, #337398 34px 34px, #337398 35px 35px, #337398 36px 36px, #337398 37px 37px, #337398 38px 38px, #337398 39px 39px, #337398 40px 40px, #337398 41px 41px, #337398 42px 42px, #337398 43px 43px, #337398 44px 44px, #337398 45px 45px, #337398 46px 46px, #337398 47px 47px, #337398 48px 48px, #337398 49px 49px, #337398 50px 50px, #337398 51px 51px, #337398 52px 52px, #337398 53px 53px, #337398 54px 54px, #337398 55px 55px, #337398 56px 56px, #337398 57px 57px, #337398 58px 58px, #337398 59px 59px, #337398 60px 60px, #337398 61px 61px, #337398 62px 62px, #337398 63px 63px, #337398 64px 64px, #337398 65px 65px, #337398 66px 66px, #337398 67px 67px, #337398 68px 68px, #337398 69px 69px, #337398 70px 70px, #337398 71px 71px, #337398 72px 72px, #337398 73px 73px, #337398 74px 74px, #337398 75px 75px, #337398 76px 76px, #337398 77px 77px, #337398 78px 78px, #337398 79px 79px, #337398 80px 80px, #337398 81px 81px, #337398 82px 82px, #337398 83px 83px, #337398 84px 84px, #337398 85px 85px, #337398 86px 86px, #337398 87px 87px, #337398 88px 88px, #337398 89px 89px, #337398 90px 90px, #337398 91px 91px, #337398 92px 92px, #337398 93px 93px, #337398 94px 94px, #337398 95px 95px, #337398 96px 96px, #337398 97px 97px, #337398 98px 98px, #337398 99px 99px, #337398 100px 100px, #337398 101px 101px, #337398 102px 102px, #337398 103px 103px, #337398 104px 104px, #337398 105px 105px, #337398 106px 106px, #337398 107px 107px, #337398 108px 108px, #337398 109px 109px, #337398 110px 110px, #337398 111px 111px, #337398 112px 112px, #337398 113px 113px, #337398 114px 114px, #337398 115px 115px, #337398 116px 116px, #337398 117px 117px, #337398 118px 118px, #337398 119px 119px, #337398 120px 120px, #337398 121px 121px, #337398 122px 122px, #337398 123px 123px, #337398 124px 124px, #337398 125px 125px, #337398 126px 126px, #337398 127px 127px, #337398 128px 128px, #337398 129px 129px, #337398 130px 130px, #337398 131px 131px, #337398 132px 132px, #337398 133px 133px, #337398 134px 134px, #337398 135px 135px, #337398 136px 136px, #337398 137px 137px, #337398 138px 138px, #337398 139px 139px, #337398 140px 140px, #337398 141px 141px, #337398 142px 142px, #337398 143px 143px, #337398 144px 144px, #337398 145px 145px, #337398 146px 146px, #337398 147px 147px, #337398 148px 148px, #337398 149px 149px, #337398 150px 150px;
+}
+
+#icon-box {
+  position: relative;
+  text-align: center;
+  overflow: hidden;
+  width: 150px;
+  height: 150px;
+  font-size: 75px;
+  line-height: 150px;
+  background-image: linear-gradient(#54b4eb, #2fa4e7 60%, #1d9ce5);
+  -webkit-border-radius: 0px;
+  -moz-border-radius: 0px;
+  -ms-border-radius: 0px;
+  border-radius: 0px;
+}
+
+/* Help Styles */
+#container {
+  text-align: center;
+}
+
+#container div {
+  display: inline-block;
+  margin: .5em;
+}
+
+
+.card-wrapper {
+	display: flex;
+}
+
+.card-content {
+	flex: 12 1 auto;
+	padding: 10px;
+}

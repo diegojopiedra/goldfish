@@ -64,8 +64,8 @@
 								</router-link>
 							</li>
 							<li v-if="user.name">
-								<router-link to="/estadisticas">
-									<i class="fa fa-pie-chart" aria-hidden="true"></i> Estadísticas <span class="sr-only">(current)</span>
+								<router-link to="/administrador">
+									<i class="fa fa-tachometer" aria-hidden="true"></i> Panel administrativo <span class="sr-only">(current)</span>
 								</router-link>
 							</li>
 							
@@ -93,7 +93,7 @@
 									</a>
 								</li>
 								<li role="separator" class="divider"></li>
-								<li><a href="#/" v-on:click="logout()"><i class="fa fa-sign-out"></i>Salir</a></li>
+								<li><a style="cursor: pointer" v-on:click="logout()"><i class="fa fa-sign-out"></i>Salir</a></li>
 							</ul>
 						</li>
 						<li v-if="user.name">
@@ -359,203 +359,6 @@
 			</div>
 		</div>
 	</div>
-	<div style="display:none" id="audiovisualEquipmentManagementTemplate">
-		<div class="col-xs-12 col-sm-10 col-sm-offset-1" :listing-id="audiovisual_equipment_managment"> 
-			<div class="well">
-				<h3>
-					Equipo audiovisual
-				</h3>
-			<!--
-				<div class="input-group pull-right">
-					  <input type="text" class="form-control" placeholder="Busqueda"/>
-					  <span class="input-group-addon" id="email">
-						<i class="fa fa-search"></i>
-					  </span>
-				</div>
-					<br><br>
-					<button class= "btn btn-primary pull-right">Buscar</button><br>
-			-->
-				<span class="text-muted" >
-					Página {{$route.params.page}} de {{page.last_page}}
-				</span>
-				
-				<nav aria-label="Page navigation">
-				  <ul class="pagination">
-				    <li>
-				      	<router-link  :to="{ name: 'equipo-audiovisual', params: { page: 1 }}" aria-label="Previous">
-				        	<span>&laquo;</span>
-						</router-link>
-				    </li>
-				    <template v-for="index in page.last_page">
-					    <li >
-					    	<router-link  :to="{ name: 'equipo-audiovisual', params: { page: index }}">
-								{{index}}
-							</router-link>
-					    </li>
-				    </template>
-				    <li>
-				    	<router-link  :to="{ name: 'equipo-audiovisual', params: { page: page.last_page }}"  aria-label="Next">
-							<span>&raquo;</span>
-						</router-link>
-				    </li>
-				  </ul>
-				</nav>
-				
-				<table class="table table-striped">
-					<thead>
-						<tr>
-							<th>
-								Código de barras
-							</th>
-							<th>
-								Nombre
-							</th>
-							<th>
-								Modelo
-							</th>
-							<th>
-								Marca
-							</th>
-							<th>
-								Estado
-							</th>
-						</tr>
-					</thead>
-				<tbody>
-					<template v-for="equipment in page.data" >
-						<tr v-bind:class="{'success':equipment.loanable.state.id==1}">
-							<td>
-								<router-link  :to="{ name: 'equipo-audiovisual-panel', params: { id: equipment.loanable.id }}">
-									{{equipment.loanable.barcode}}
-								</router-link>
-							</td>
-								<td>
-									<router-link  :to="{ name: 'equipo-audiovisual-panel', params: { id: equipment.loanable.id }}">
-										{{equipment.type.name}}
-									</router-link>
-								</td>
-								<td>
-									{{equipment.model.name}}
-								</td>
-								<td>
-									{{equipment.brand.name}}
-								</td>
-								<td v-bind:class="{'text-success':equipment.loanable.state.id==1}">
-									{{equipment.loanable.state.description}}
-								</td>
-							</tr>
-						</template>
-						
-					</tbody>
-				</table>
-				
-				<span class="text-muted">
-					Resultados desde {{page.from}} hasta {{page.to}}
-				</span>
-				<nav aria-label="Page navigation">
-				  <ul class="pagination">
-				    <li>
-				      	<router-link  :to="{ name: 'equipo-audiovisual', params: { page: 1 }}" aria-label="Previous">
-				        	<span>&laquo;</span>
-						</router-link>
-				    </li>
-				    <template v-for="index in page.last_page">
-					    <li >
-					    	<router-link  :to="{ name: 'equipo-audiovisual', params: { page: index }}">
-								{{index}}
-							</router-link>
-					    </li>
-				    </template>
-				    <li>
-				    	<router-link  :to="{ name: 'equipo-audiovisual', params: { page: page.last_page }}"  aria-label="Next">
-							<span>&raquo;</span>
-						</router-link>
-				    </li>
-				  </ul>
-				</nav>
-			</div>
-		</div><!--ERROR PAGE -->
-	</div>
-	<div style="display:none" id="audiovisualEquipmentPanelTemplate">
-		<div class="col-xs-12 col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-2"  :listing-id="audiovisual_equipment_panel">
-		<div class="well row">
-			<h3>
-				Panel de equipo
-			</h3>
-			<div class="col-xs-12 col-md-6">
-			<label>Código de barras </label>
-				<div class="input-group has-default">
-					<span id="user" class="input-group-addon">
-						<i class="fa fa-barcode"></i>
-					</span>
-					<input autofocus="autofocus" type="text" placeholder="Código de barras" aria-describedby="user" class="form-control" v-model="audiovisual_data.loanable.barcode">
-				</div>
-			</div>
-			<div class="col-xs-12 col-md-6">
-				<label>Nombre</label>
-				<div class="input-group has-default">
-					<select name="" id="" class="form-control" v-model="audiovisual_data.type">
-						<option value="" disabled selected="selected">Nombre</option>
-						<template v-for="type in types">
-							<option v-bind:value="type">{{type.name}}</option>
-						</template>
-						
-					</select>
-					<span id="user" class="input-group-addon">
-						Nuevo <input type="checkbox" />
-					</span>
-				</div>
-			</div>	
-			<br /> <br /> <br />
-			<div class="col-xs-12 col-md-6">
-			<label>Marca</label>
-				<div class="input-group has-default">
-					<span id="user" class="input-group-addon">
-						Nuevo <input type="checkbox" />
-					</span>
-					<select name="" id="" class="form-control"  v-model="audiovisual_data.brand">
-						<option value="" disabled selected="selected">Marca</option>
-						<option v-for="brand in brands" v-bind:value="brand">{{brand.name}}</option>
-					</select>
-				</div>
-			</div>
-			<div class="col-xs-12 col-md-6">
-			<label>Modelo</label>
-				<div class="input-group has-default">
-					<select name="" id="" class="form-control" v-model="audiovisual_data.model">
-						<option value="" disabled selected="selected">Modelo</option>
-						<option v-for="model in models" v-bind:value="model">{{model.name}}</option>
-					</select>
-					<span id="user" class="input-group-addon">
-						Nuevo <input type="checkbox" />
-					</span>
-				</div>
-			</div>	
-			<br /> <br /> <br />	
-			<div class="col-xs-12 col-md-6">
-			<label>Estado</label>
-				<select name="" v-model="audiovisual_data.loanable.state" class="form-control">
-					<option value="" disabled selected="selected">Estado</option>
-					<option v-for="state in states" v-bind:value="state">{{state.description}}</option>
-				</select>
-			</div>	
-			<br /> <br /> <br />	
-			<div class="col-xs-12">
-			<label>Notas</label>
-				<textarea name="" id="" cols="30" rows="10" class="form-control" placeholder="Notas" style="resize:vertical" v-model="audiovisual_data.loanable.note"></textarea>
-			</div>
-			<br /> <br /> <br />	
-			<div class="col-xs-12">
-				
-				<button style="margin-top: 10px;" class="btn btn-primary pull-right">
-					<i class="fa fa-floppy-o"></i> Guardar
-				</button>
-				
-			</div>
-			
-		</div>
-	</div>
-	</div>
 	<div style="display:none" id="statisticsTemplate"  :listing-id="statistics_panel">
 		<div class="col-xs-12 col-sm-6">
 			<div class="well container-fluid">
@@ -711,7 +514,6 @@
 										{{singleUser.last_name}}
 									</router-link>
 								</td>
-								
 								<td>
 									{{(singleUser.active)?"Activo":"Inactivo"}}
 								</td>
@@ -996,88 +798,6 @@
 			</div>
 		</div>
 	</div>
-	<div style="display:none" id="singleBookTemplate">
-		<div class="col-xs-12 col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-2">
-		<div class="well row">
-			<h3>
-				Libro
-			</h3>
-			<div class="col-xs-12 col-md-6">
-				<div class="input-group has-default">
-					<span id="user" class="input-group-addon">
-						<i class="fa fa-barcode"></i>
-					</span>
-					<input autofocus="autofocus" type="text" placeholder="Código de barras" aria-describedby="user" class="form-control">
-				</div>
-			</div>
-			<div class="col-xs-12 col-md-6">
-				<div class="input-group has-default">
-					<span id="user" class="input-group-addon">
-						<i ></i>
-					</span>
-					<input autofocus="autofocus" type="text" placeholder="Signatura" aria-describedby="user" class="form-control">
-				</div>
-			</div>	
-			<br /> <br /> <br />
-			<div class="col-xs-12 col-md-6">
-				<div class="input-group has-default">
-					<span id="user" class="input-group-addon">
-						<i ></i>
-					</span>
-					<input autofocus="autofocus" type="text" placeholder="Año de publicación" aria-describedby="user" class="form-control">
-				</div>
-			</div>
-			 <div class="col-xs-12 col-md-6">
-				<div class="input-group has-default">
-					<span id="user" class="input-group-addon">
-						<i ></i>
-					</span>
-					<input autofocus="autofocus" type="text" placeholder="Lugar de publicación" aria-describedby="user" class="form-control">
-				</div>
-			</div>	
-			<br /> <br /> <br />
-			<div class="col-xs-12 col-md-6">
-				<div class="input-group has-default">
-					<span id="user" class="input-group-addon">
-						Nuevo <input type="checkbox" />
-					</span>
-					<select name="" id="" class="form-control">
-						<option value="" disabled selected="selected">Editorial</option>
-						<option v-for="state in states" value="{{state.id}}">Lista editoriales</option>
-					</select>
-				</div>
-			</div>
-			<div class="col-xs-12 col-md-6">
-				<select name="" id="" class="form-control">
-					<option value="" disabled selected="selected">Estado</option>
-					<option v-for="state in states" value="{{state.id}}">Lista estados</option>
-				</select>
-			</div>
-				
-			<br /> <br /> <br />
-			<div class="col-xs-12 col-md-6">
-				<div class="input-group has-default">
-				<span id="user" class="input-group-addon">
-							Nuevo <input type="checkbox" />
-				</span>
-					<select name="" id="" class="form-control">
-						<option value="" disabled selected="selected">Autor</option>
-						<option v-for="state in states" value="{{state.id}}">Lista autores</option>
-					</select>
-				</div>
-			</div>
-			<br /> <br /> <br />
-			<div class="col-xs-12">
-				<textarea name="" id="" cols="10" rows="5" class="form-control" placeholder="Notas" style="resize:vertical" v-model="audiovisual_data.loanable.note"></textarea>
-			</div>
-			
-			<br /> <br /> <br />	
-			<div class="col-xs-12"><button style="margin-top: 10px;" class="btn btn-primary pull-right">
-				<i class="fa fa-floppy-o"></i> Guardar
-			</button></div>
-		</div>
-	</div>
-	</div>
 	<div style="display:none" id="audiovisualMaterialManagementTemplate">
 		<div class="col-xs-12 col-sm-10 col-sm-offset-1" :listing-id="audiovisual_material_management"> 
 			<div class="well">
@@ -1244,126 +964,6 @@
 				    </template>
 				    <li>
 				    	<router-link  :to="{ name: 'objeto-tridimensional-panel', params: { id: three_dimensional_data.last_page }}"  aria-label="Next">
-							<span>&raquo;</span>
-						</router-link>
-				    </li>
-				  </ul>
-				</nav>
-			</div>
-		</div><!--ERROR PAGE -->
-	</div>
-	<div style="display:none" id="materialCartographicPanelTemplate">
-			<div class="col-xs-12 col-sm-10 col-sm-offset-1" :listing-id="cartographic_panel">
-				<div class="well">
-					<h3>
-						Material Cartográfico
-					</h3>
-				<!--
-					<div class="input-group pull-right">
-						<input type="text" class="form-control" placeholder="Busqueda"/>
-						<span class="input-group-addon" id="email">
-							<i class="fa fa-search"></i>
-					  </span>
-					</div>
-						<br><br>
-						<button class= "btn btn-primary pull-right">Buscar</button><br>
-				-->
-					<span class="text-muted" >
-							Página {{$route.params.id}} de {{cartographic_data.last_page}}
-					</span>
-					
-					<nav aria-label="Page navigation">
-				  <ul class="pagination">
-				    <li>
-				      	<router-link  :to="{ name: 'material-cartografico', params: { id: 1 }}" aria-label="Previous">
-				        	<span>&laquo;</span>
-						</router-link>
-				    </li>
-				    <template v-for="index in cartographic_data.last_page">
-					    <li >
-					    	<router-link  :to="{ name: 'material-cartografico', params: { id: index }}">
-								{{index}}
-							</router-link>
-					    </li>
-				    </template>
-				    <li>
-				    	<router-link  :to="{ name: 'material-cartografico', params: { id: cartographic_data.last_page }}"  aria-label="Next">
-							<span>&raquo;</span>
-						</router-link>
-				    </li>
-				  </ul>
-				</nav>
-				<table class="table table-striped">
-						<thead>
-							<tr>
-								<th>
-									Nombre
-								</th>
-								<th>
-									Signatura 
-								</th>
-								<th>
-									Lugar publicación
-								</th>
-								<th>
-									Editorial
-								</th>
-								<th>
-									Dimensiones
-								</th>
-							</tr>
-						</thead>
-					<tbody>
-						<template v-for="cartographic_item in cartographic_data.data" >
-							<tr>
-								<td>
-									<router-link  :to="{ name: 'cartographic_data', params: { id: cartographic_data.id }}">
-										{{cartographic_item.cartographic_format.name}}
-									</router-link>
-								</td>
-								<td>
-									<router-link  :to="{ name: 'cartographic_data', params: { id: cartographic_data.id }}">
-										{{cartographic_item.bibliographic_material.signature}}
-									</router-link>
-								</td>
-								<td>
-									{{cartographic_item.bibliographic_material.publication_place}}
-								</td>
-								
-								<td>
-									{{cartographic_item.bibliographic_material.editorial.name}}
-								</td>
-								<td>
-									{{cartographic_item.dimension}}
-								</td>
-								<!--<td>
-									{{cartographic_item}}
-								</td>-->
-							</tr>
-						</template>
-					</tbody>
-				</table>
-				
-				<span class="text-muted">
-				
-					Resultados desde {{cartographic_data.from}} hasta {{cartographic_data.to}}
-				</span>
-				<nav aria-label="Page navigation">
-				  <ul class="pagination">
-				    <li>
-				      	<router-link  :to="{ name: 'material-cartografico', params: { id: 1 }}" aria-label="Previous">
-				        	<span>&laquo;</span>
-						</router-link>
-				    </li>
-				    <template v-for="index in cartographic_data.last_page">
-					    <li >
-					    	<router-link  :to="{ name: 'material-cartografico', params: { id: index }}">
-								{{index}}
-							</router-link>
-					    </li>
-				    </template>
-				    <li>
-				    	<router-link  :to="{ name: 'material-cartografico', params: { id: cartographic_data.last_page }}"  aria-label="Next">
 							<span>&raquo;</span>
 						</router-link>
 				    </li>
@@ -1550,7 +1150,7 @@
 								<button class="btn btn-default" type="button">
 									<i class="fa fa-times"></i>
 								</button>
-								<button class="btn btn-primary" type="button" v-on:click="search()">
+								<button class="btn btn-info" type="button" v-on:click="search()">
 									<i class="fa fa-search"></i>
 									Buscar
 								</button>
@@ -1564,6 +1164,51 @@
 								{{type.name}}
 							</label>
 						</p>
+					</div>
+					<div class="col-xs-12">
+						<div class="btn-group pull-right">
+							<div class="btn-group ">
+								<button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+									<i class="fa fa-plus-square" aria-hidden="true"></i> Agregar activo <span class="caret"></span>
+								</button>
+								<ul class="dropdown-menu">
+									<li>
+										<a href="#/activo/nuevo.equipo">
+											<i class="fa fa-laptop"></i> Equipo audiovisual
+										</a>
+									</li>
+									<li>
+										<a href="#/activo/nuevo.publicacion">
+											<i class="fa fa-newspaper-o"></i> Publicación periódica
+										</a>
+									</li>
+									<li>
+										<a href="#/activo/nuevo.libro">
+											<i class="fa fa-book"></i> Libro
+										</a>
+									</li>
+									<li>
+										<a href="#/activo/nuevo.cartografico">
+											<i class="fa fa-map-o"></i> Material cartográfico
+										</a>
+									</li>
+									<li>
+										<a href="#/activo/nuevo.aduiovisual">
+											<i class="fa fa-file-video-o"></i> Material audiovisual
+										</a>
+									</li>
+									<li>
+										<a href="#/activo/nuevo.tridimensional">
+											<i class="fa fa-certificate"></i> Objeto tridimensional
+										</a>
+									</li>
+								</ul>
+							</div>
+							<!--<button class="btn btn-default">
+								<i class="fa fa-download" aria-hidden="true"></i> Importar .CSV
+							</button>-->
+						</div>
+							
 					</div>
 				</div>
 				<div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
@@ -1634,22 +1279,8 @@
 					</div>
 				</div>
 			</div>
-			<div class="container-fluid" style="margin-bottom: 15px;">
+			<div class="container-fluid" style="margin-bottom: 15px;" v-if="paginate.data != null">
 				<div class="row">
-					<!--<div class="col-xs-12 col-sm-6 col-md-4">
-						<!--<div class="input-group">
-							<span class="input-group-addon">
-								Resultados por página
-							</span>
-							<!--<input type="number" min="1" max="100" class="form-control" v-model.number="resultsPerPage">--
-							<select class="form-control" v-model.number="resultsPerPage">
-								<option>5</option>
-								<option>10</option>
-								<option>20</option>
-								<option>50</option>
-							</select>
-						</div>--
-					</div>-->
 					<div class="col-xs-12 col-sm-9">
 						<div class="btn-toolbar" role="toolbar">
 							<div class="btn-group" role="group">
@@ -1688,7 +1319,17 @@
 					</div>
 				</div>
 			</div>
-			<div class="container-fluid col-xs-12" v-if="view == 'list'">
+			<div v-if="paginate.data == null" class="container-fluid col-xs-12">
+				<div class="text-center bg-warning col-xs-12 text-warning" style="margin-top:10px; margin-bottom:10px;font-size: 25px;border: 1px solid #999;border-radius: 6px;">
+					<span class="fa-stack fa-lg text-warning" style="font-size: 3.5em;">
+						<i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw fa-stack-2x text-warning"></i>
+						<i class="fa fa-archive fa-stack-1x text-warning"></i>
+					</span>
+					<br>
+					<p>Cargando ...</p>
+				</div>
+			</div>
+			<div class="container-fluid col-xs-12" v-if="paginate.data != null && view == 'list'">
 				<div class="panel panel-default shadow">
 					<div class="panel-body">
 						<table class="table table-hover">
@@ -1795,7 +1436,7 @@
 									<router-link :to="{name:'activo', params:{id:loanable.id}}" class="btn btn-primary btn-xs">
 										<i class="fa fa-eye"></i> Ver
 									</router-link>
-									<button class="btn btn-danger btn-xs" v-if="loanable.state_id != 2 && user.role_id == 1">
+									<button v-on:click="deleteLoanable(loanable)" class="btn btn-danger btn-xs" v-if="loanable.state_id != 2 && user.role_id == 1">
 										<i class="fa fa-trash-o"></i> Borrar
 									</button>
 								</td>
@@ -1806,7 +1447,7 @@
 					</div>
 				</div>
 			</div>
-			<div v-if="view == 'card'">
+			<div v-if="paginate.data != null && view == 'card'">
 				<div class="col-xs-12 form-inline" style="margin-bottom: 15px;">
 					<div class="input-group">
 						<span class="input-group-addon">
@@ -1908,7 +1549,7 @@
 								<router-link :to="{name:'activo', params:{id:loanable.id}}" class="btn btn-primary btn-xs">
 									<i class="fa fa-eye"></i> Ver
 								</router-link>
-								<button class="btn btn-danger btn-xs" v-if="loanable.state_id != 2 && user.role_id == 1">
+								<button v-on:click="deleteLoanable()" class="btn btn-danger btn-xs" v-if="loanable.state_id != 2 && user.role_id == 1">
 									<i class="fa fa-trash-o"></i> Borrar
 								</button>
 							</div>
@@ -1974,7 +1615,7 @@
 					</div>
 				</div>
 			</div>
-			<div class="container-fluid" style="margin-bottom: 15px;">
+			<div class="container-fluid" style="margin-bottom: 15px;" v-if="paginate.data != null">
 				<div class="row">
 					<div class="col-xs-12 col-sm-9">
 						<div class="btn-toolbar" role="toolbar">
@@ -2006,149 +1647,373 @@
 		</div>
 	</div>
 	<div style="display:none" id="loanableTemplate">
-		<div class="col-xs-12 col-sm-6 col-md-4" :listing-id="init">
-			<div class="well container-fluid">
-				<h4>Activo</h4>
-				<form class="bs-example bs-example-form">
-					<div class="input-group" style="margin-bottom: 5px;">
-						<span class="input-group-addon" id="barcode">Código de barras</span>
-						<input v-model="loanable.barcode" type="text" class="form-control" placeholder="Código de barras" aria-describedby="barcode">
+		<div class="container-fluid" :listing-id="init">
+			<div class="col-xs-12 col-sm-6">
+				<div class="panel panel-default card-wrapper shadow">
+					<div class="card-icon">
+						<div id="icon-box" style="height: 250px;">
+							<span>
+								<i class="fa fa-lg" v-bind:class="{
+									'fa-laptop': type=='equipo',
+									'fa-newspaper-o': type=='publicacion',
+									'fa-map-o': type=='cartografico',
+									'fa-certificate': type=='tridimensional',
+									'fa-book': type=='libro',
+									'fa-file-video-o': type=='aduiovisual',
+								}"></i>
+								<p style="font-size: 20px;line-height: 1;">
+									<span v-if="type=='equipo'">
+										Equipo audiovisual
+									</span>
+									<span v-if="type=='publicacion'">
+										Publicación periódica
+									</span>
+									<span v-if="type=='cartografico'">
+										Material cartográfico
+									</span>
+									<span v-if="type=='tridimensional'">
+										Objeto tridimensional
+									</span>
+									<span v-if="type=='libro'">
+										Libro
+									</span>
+									<span v-if="type=='aduiovisual'">
+										Material audiovisual
+									</span>
+								</p>
+							</span>
+						</div>
 					</div>
-					<button style="margin-bottom: 5px;" class="btn btn-default" type="button" v-if="loanable.specification_type != null && loanable.specification_type != ''">
-					  Tipo:
-					  	<span v-if="loanable.specification_type == 'App\\BibliographicMaterial'">
-							<span v-if="loanable.specific.material_type == 'App\\Book'">
-								<i class="fa fa-book"></i>
-								Libro
-							</span>
-							<span v-if="loanable.specific.material_type == 'App\\CartographicMaterial'">
-								<i class="fa fa-map-o"></i>
-								Material cartográfico
-							</span>
-							<span v-if="loanable.specific.material_type == 'App\\ThreeDimensionalObject'">
-								<i class="fa fa-certificate"></i>
-								Objeto tridimensional
-							</span>
-							<span v-if="loanable.specific.material_type == 'App\\AudiovisualMaterial'">
-								<i class="fa fa-file-video-o"></i>
-								Material audiovisual
-							</span>
-						</span>
-						<span v-if="loanable.specification_type == 'App\\AudiovisualEquipment'">
-							<i class="fa fa-laptop"></i>
-							Equipo audiovisual
-						</span>
-						<span v-if="loanable.specification_type == 'App\\CopyPeriodicPublication'">
-							<i class="fa fa-newspaper-o"></i>
-							Publicación periódica
-						</span>
-					</button>
-					<div class="input-group" style="margin-bottom: 5px;" v-else>
-						<span class="input-group-addon" id="specification_type">Tipo</span>
-						<select class="form-control" v-model="type">
-							 <option value="AudiovisualEquipment">
-							 	Equipo audiovisual
-							 </option>
-							 <option value="CopyPeriodicPublication">
-							 	Publicación periodica
-							 </option>
-							 <option value="Book">
-							 	Libro
-							 </option>
-							 <option value="CartographicMaterial">
-							 	Material cartográfico
-							 </option>
-							 <option value="AudiovisualMaterial">
-							 	Material audiovisual
-							 </option>
-							 <option value="ThreeDimensionalObject">
-							 	Objeto tridimensional
-							 </option>
-						</select>
+					<div class="card-content">
+						<h3 style="margin-top: 5px;margin-bottom: 5px;">
+							<b>
+								{{loanable.named}}
+							</b>
+							<i v-if="!loanable.named" class="text-muted">
+								Sin datos
+							</i>
+						</h3>
+						<p>
+							<div class="input-group">
+								<span class="input-group-addon">Codigo de barras:</span>
+								<input placeholder="Sin código de barras" type="text" v-model="loanable.barcode" class="form-control" v-bind:disabled="loanable.state_id == 2"/>
+							</div>
+						</p>
+						<span>Estado:</span>
+						<div class="btn-group">
+							<button v-bind:class="{
+								'btn-success': (loanable.state.id == 1), 
+								'btn-primary': (loanable.state.id == 2), 
+								'btn-default': (loanable.state.id == 3 || loanable.state.id == 4)
+							}" v-bind:disabled="loanable.state.id == 2" type="button" class="btn dropdown-toggle btn-sm" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+								<i class="fa" v-bind:class="{
+									'fa-check-circle-o': (loanable.state.id == 1),
+									'fa-circle-o': (loanable.state.id == 2),
+									'fa-minus-circle': (loanable.state.id == 3),
+									'fa-cog': (loanable.state.id == 4)
+								}"></i>
+								<span v-if="loanable.state != null">
+									{{loanable.state.description}}
+								</span>
+								<span class="caret"></span>
+							</button>
+						  	<ul class="dropdown-menu">
+								<li style="cursor: pointer" v-if="loanable.state.id != 1">
+									<a v-on:click="loanable.state = states[0]">
+										<i class="fa fa-check-circle-o"></i> Disponible
+									</a>
+								</li>
+								<li style="cursor: pointer" v-if="loanable.state.id != 3">
+									<a v-on:click="loanable.state = states[2]">
+										<i class="fa fa-minus-circle"></i> Fuera de servicio
+									</a>
+								</li>
+								<li style="cursor: pointer" v-if="loanable.state.id != 4">
+									<a  v-on:click="loanable.state = states[3]">
+										<i class="fa fa-cog"></i>  En reparación
+									</a>
+								</li>
+						  	</ul>
+						</div>
+						<div style="margin-top: 5px;">
+							<span>Notas:</span>
+							<textarea v-bind:disabled="loanable.state.id == 2" style="width: 100%; resize:none;" v-model="loanable.note" class="form-control"></textarea>
+						</div>
 					</div>
-					<!--<div class="dropdown" style="margin-bottom: 5px;" v-if="loanable.state_id != 2">
-						<button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-						    Estado:
-						    <span v-if="loanable.state_id == 1" class="text-success">
-						    	<i class="fa fa-check-circle-o"></i>
-						    	Disponible
-						    </span>
-						    <span v-if="loanable.state_id == 3" class="text-muted">
-						    	<i class="fa fa-minus-circle"></i>
-						    	Fuera de servicio
-						    </span>
-						    <span v-if="loanable.state_id == 4" class="text-muted">
-						    	<i class="fa fa-cog"></i>
-						    	En reparación
-						    </span>
-						    <span class="caret"></span>
-						  </button>
-						<ul class="dropdown-menu">
-							<li>
-								<a v-on:click="loanable.state_id = 1" class="pointer">
-									<i class="fa fa-check-circle-o"></i>
-									Disponible
-								</a>
-							</li>
-							<li>
-								<a v-on:click="loanable.state_id = 3" class="pointer">
-									<i class="fa fa-minus-circle"></i>
-									Fuera de servicio
-								</a>
-							</li>
-							<li>
-								<a v-on:click="loanable.state_id = 4" class="pointer">
-									<i class="fa fa-cog"></i>
-									En reparación
-								</a>
-							</li>
-						</ul>
-					</div>-->
-					<button class="btn btn-default" type="button" v-if="loanable.state_id == 2">
-						Estdo:
-						<span class="text-info">
-					    	<i class="fa fa-circle-o"></i>
-					    	Prestado
-					    </span>
-					</button>
-					<br>
-					<small v-if="loanable.state_id == 2" style="margin-bottom: 5px;">
-						(Para cambiar el estado debe terminar el prestamo primero)
-					</small>
-					<div class="input-group" style="margin-bottom: 5px;" v-else>
-						<span class="input-group-addon" id="specification_type">Estado</span>
-						<select class="form-control" v-model="loanable.state_id">
-							 <option value="1">
-							 	Disponible
-							 </option>
-							 <option value="3">
-							 	Fuera de servicio
-							 </option>
-							 <option value="4">
-							 	En reparación
-							 </option>
-						</select>
+				</div>
+				<div class="list-group shadow" v-if="type == 'equipo'">
+					<h4 class="list-group-item active">
+						<i class="fa fa-info-circle" aria-hidden="true"></i>
+						Detalles
+					</h4>
+					<div class="list-group-item container-fluid">
+						<div class="input-group">
+							<span class="input-group-addon">Tipo:</span>
+							<select v-model="loanable.specific.type" class="form-control" v-bind:disabled="loanable.state.id == 2">
+								<option v-for="type in types" v-bind:value="type">
+									{{type.name}}
+								</option>
+							</select>
+							<span class="input-group-btn">
+								<button class="btn btn-primary" type="button"><i class="fa fa-plus" aria-hidden="true"></i> Nuevo</button>
+							</span>
+						</div>
 					</div>
-				</form>
-				<!--{{loanable}}-->
+					<div class="list-group-item container-fluid">
+						<div class="input-group">
+							<span class="input-group-addon">Marca:</span>
+							<select v-model="loanable.specific.brand" class="form-control" v-bind:disabled="loanable.state.id == 2">
+								<option v-for="brand in brands" v-bind:value="brand">
+									{{brand.name}}
+								</option>
+							</select>
+							<span class="input-group-btn">
+								<button class="btn btn-primary" type="button"><i class="fa fa-plus" aria-hidden="true"></i> Nuevo</button>
+							</span>
+						</div>
+					</div>
+					<div class="list-group-item container-fluid">
+						<div class="input-group">
+							<span class="input-group-addon">Modelo:</span>
+							<select v-model="loanable.specific.model" class="form-control" v-bind:disabled="loanable.state.id == 2">
+								<option v-for="model in models" v-bind:value="model">
+									{{model.name}}
+								</option>
+							</select>
+							<span class="input-group-btn">
+								<button class="btn btn-primary" type="button"><i class="fa fa-plus" aria-hidden="true"></i> Nuevo</button>
+							</span>
+						</div>
+					</div>
+				</div>
+				<div class="list-group shadow" v-if="type == 'cartografico' || type == 'libro' || type == 'aduiovisual' || type == 'tridimensional'">
+					<h4 class="list-group-item active">
+						<i class="fa fa-info-circle" aria-hidden="true"></i>
+						Detalles
+					</h4>
+					<p class="list-group-item">
+						<b>
+							Titulo:
+						</b>
+						{{loanable.specific.title}}
+						<button class="btn btn-primary btn-xs pull-right" v-bind:disabled="loanable.state.id == 2">
+							<span class="fa fa-edit"></span>
+							Editar
+						</button>
+					</p>
+					<p class="list-group-item">
+						<b>
+							Signatura:
+						</b>
+						{{loanable.specific.signature}}
+						<button class="btn btn-primary btn-xs pull-right" v-bind:disabled="loanable.state.id == 2">
+							<span class="fa fa-edit"></span>
+							Editar
+						</button>
+					</p>
+					<p class="list-group-item">
+						<b>
+							Editorial:
+						</b>
+						{{loanable.specific.editorial.name}}
+						<button class="btn btn-primary btn-xs pull-right" v-bind:disabled="loanable.state.id == 2">
+							<span class="fa fa-edit"></span>
+							Editar
+						</button>
+					</p>
+					<p class="list-group-item">
+						<b>
+							Año de publicación:
+						</b>
+						{{loanable.specific.year}}
+						<button class="btn btn-primary btn-xs pull-right" v-bind:disabled="loanable.state.id == 2">
+							<span class="fa fa-edit"></span>
+							Editar
+						</button>
+					</p>
+					<p class="list-group-item">
+						<b>
+							Lugar de publicación:
+						</b>
+						{{loanable.specific.publication_place}}
+						<button class="btn btn-primary btn-xs pull-right" v-bind:disabled="loanable.state.id == 2">
+							<span class="fa fa-edit"></span>
+							Editar
+						</button>
+					</p>
+					<p class="list-group-item" v-if="loanable.specific.material_type == 'App\\CartographicMaterial'">
+						<b>
+							Dimensiones:
+						</b>
+						{{loanable.specific.material.dimension}}
+						<button class="btn btn-primary btn-xs pull-right" v-bind:disabled="loanable.state.id == 2">
+							<span class="fa fa-edit"></span>
+							Editar
+						</button>
+					</p>
+					<p class="list-group-item" v-if="loanable.specific.material_type == 'App\\ThreeDimensionalObject'">
+						<b>
+							Descripción física:
+						</b>
+						{{loanable.specific.material.physical_description}}
+						<button class="btn btn-primary btn-xs pull-right" v-bind:disabled="loanable.state.id == 2">
+							<span class="fa fa-edit"></span>
+							Editar
+						</button>
+					</p>
+					<p class="list-group-item" v-if="loanable.specific.material_type == 'App\\AudiovisualMaterial'">
+						<b>
+							Formato:
+						</b>
+						{{loanable.specific.material.audiovisual_format.name}}
+						<button class="btn btn-primary btn-xs pull-right" v-bind:disabled="loanable.state.id == 2">
+							<span class="fa fa-edit"></span>
+							Editar
+						</button>
+					</p>
+					<p class="list-group-item" v-if="loanable.specific.material_type == 'App\\AudiovisualMaterial'">
+						<b>
+							Tipo:
+						</b>
+						{{loanable.specific.material.audiovisual_type.name}}
+						<button class="btn btn-primary btn-xs pull-right" v-bind:disabled="loanable.state.id == 2">
+							<span class="fa fa-edit"></span>
+							Editar
+						</button>
+					</p>
+				</div>
 			</div>
-			<div class="well container-fluid" v-if="loanable.specification_type == 'App\\AudiovisualEquipment'">
-				<form class="bs-example bs-example-form">
-					<div class="input-group" style="margin-bottom: 5px;">
-						<span class="input-group-addon">Marca</span>
-						<input v-model="loanable.specific.brand.name" type="text" class="form-control">
+			<div class="col-xs-12 col-sm-6">
+				<div class="panel panel-info shadow">
+					<div class="panel-heading">
+						<b>
+							<i class="fa fa-history" aria-hidden="true"></i> Historial de prestamos
+						</b>
 					</div>
-					<div class="input-group" style="margin-bottom: 5px;">
-						<span class="input-group-addon">Modelo</span>
-						<input v-model="loanable.specific.model.name" type="text" class="form-control">
+					<div class="panel-body">
+						<div class="row">
+							<div class="col-xs-6">
+								<div class="input-group">
+									<span class="input-group-addon">
+										<i class="fa fa-clock-o" aria-hidden="true"></i>
+										Periodo	
+									</span>
+									<select class="form-control">
+										<option>
+											Hoy
+										</option>
+										<option>
+											Esta semana
+										</option>
+										<option>
+											La semana pasada
+										</option>
+										<option>
+											El útimo mes
+										</option>
+										<option>
+											El mes pasado
+										</option>
+										<option>
+											El útimo año
+										</option>
+										<option>
+											Personalizado ...
+										</option>
+									</select>
+								</div>	
+							</div>
+							<div class="col-xs-6">
+								<div class="input-group">
+									<span class="input-group-addon">
+										<i class="fa fa-hand-paper-o" aria-hidden="true"></i>
+										Acción	
+									</span>
+									<select class="form-control">
+										<option>
+											Todas
+										</option>
+										<option>
+											Prestamos
+										</option>
+										<option>
+											Devoluciones
+										</option>
+										<option>
+											Cambios de datos
+										</option>
+									</select>
+								</div>
+							</div>
+						</div>
+						<div class="container-fluid" style="margin-top: 10px;">
+							<div class="row">
+								<div class="input-group col-xs-12">
+									<span class="input-group-addon">
+										<i class="fa fa-calendar" aria-hidden="true"></i>
+										Desde	
+									</span>
+									<input type="text" class="form-control" placeholder="Fecha" disabled="disabled">
+									<span class="input-group-addon">
+										<i class="fa fa-calendar" aria-hidden="true"></i>
+										Hasta	
+									</span>
+									<input type="text" class="form-control" placeholder="Fecha" disabled="disabled">
+								</div>
+							</div>
+								
+						</div>
+						Scroll position: {{scrollPosition}} - Scroll Height: {{scrollHeight}} - Client Height: {{clientHeight}}
+						<div @scroll="handleScroll" id="history-loans-to-loanable-container" style="border-radius:5px;height: 320px;overflow-y: auto;box-shadow: inset 0 0 18px rgba(0, 0, 0, 0.36);padding: 5px;margin-top: 10px;">
+							<table class="table table-hover">
+								<thead>
+									<tr>
+										<th>Prestado</th>
+										<th>Devuelto</th>
+										<th></th>
+									</tr>
+								</thead>
+								<tbody>
+									<template>
+										<tr v-for="loan in loans.data">
+											<td>
+												{{moment(loan.departure_time).format('DD [de] MMMM [del] YYYY [-] hh[:]mm a')}}
+											</td>
+											<td v-if="loan.user_return_time != '0000-00-00 00:00:00'">
+												{{moment(loan.user_return_time).format('DD [de] MMMM [del] YYYY [-] hh[:]mm a')}}
+											</td>
+											<td v-else>
+												<i class="text-muted">
+													<i class="fa fa-clock-o" aria-hidden="true"></i>
+													Todavía en prestamo
+												</i>	
+											</td>
+											<td>
+												<router-link  :to="{ name: 'prestamo', params: { id: loan.id }}" aria-label="Previous" class="btn btn-success btn-xs pull-right">
+										        	<span class="fa fa-info-circle"></span>
+													Detalles
+												</router-link>
+											</td>
+										</tr>
+										<tr>
+											<td colspan="3">
+												<i class="text-muted">
+													<i class="fa fa-th-list" aria-hidden="true"></i>
+													Inicio de los registros
+												</i>
+											</td>
+										</tr>
+									</template>
+										
+								</tbody>
+							</table>
+						</div>
 					</div>
-					<div class="input-group" style="margin-bottom: 5px;">
-						<span class="input-group-addon">Tipo</span>
-						<input v-model="loanable.specific.type.name" type="text" class="form-control">
-					</div>
-				</form>
+				</div>
 			</div>
+			{{loanable}}
 		</div>
+			
 	</div>
 	<div style="display:none" id="configTemplate">
 		<div class="col-xs-12 col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-2">
@@ -2363,6 +2228,180 @@
 			</div>
 		</div><!--ERROR PAGE -->
 	</div>
+	<div style="display:none" id="dashboardPanel">
+		<div :listing-id="init">
+			<h1>Panel administrativo</h1>
+		</div>
+	</div>
+	<div style="display:none" id="loanDetails">
+		<div :listing-id="init">
+			<div class="container-fluid" v-if="loan">
+				<div class="row">
+					<div class="col-xs-12 col-sm-6">
+						<div class="panel panel-primary shadow">
+							<div class="panel-heading">
+								<button class="btn btn-xs btn-danger pull-right" v-if="user.role_id == 1">
+									<i class="fa fa-trash" aria-hidden="true"></i>
+									Borrar
+								</button>
+								<h3 class="panel-title">
+									<i class="fa fa-info-circle" aria-hidden="true"></i>
+									Detalles del prestramo
+								</h3>
+							</div>
+							<div class="panel-body">
+								<div class="col-xs-4 text-center">
+									<i class="text-muted">
+										<i class="fa fa-clock-o" aria-hidden="true"></i>
+										Salida
+									</i>
+									<br>
+									<b>
+										El {{moment(loan.departure_time).format('dddd DD [de] MMMM [del] YYYY [-] hh[:]mm a')}}
+									</b>
+								</div>
+								<div class="col-xs-4 text-center" style="border-left: 1px solid #ccc;border-right: 1px solid #ccc;">
+									<i class="text-muted">
+										<i class="fa fa-clock-o" aria-hidden="true"></i>
+										Retorno previsto
+									</i>
+									<br>
+									<b>
+										El {{moment(loan.return_time).format('dddd DD [de] MMMM [del] YYYY [-] hh[:]mm a')}}
+									</b>
+								</div>
+								<div class="col-xs-4 text-center">
+									<i class="text-muted">
+										<i class="fa fa-clock-o" aria-hidden="true"></i>
+										Retorno efectivo
+									</i>
+									<br>
+									<b v-if="loan.user_return_time != '0000-00-00 00:00:00'">
+										El {{moment(loan.user_return_time).format('dddd DD [de] MMMM [del] YYYY [-] hh[:]mm a')}}
+									</b>
+									<b v-else class="text-info">
+										<i class="fa fa-circle-o"></i>
+										Prestamo en curso 
+									</b>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="col-xs-12 col-sm-6">
+						<div class="panel panel-primary shadow">
+							<div class="panel-heading">
+								<router-link  :to="{ name: 'activo', params: { id: loan.loanable.id }}" class="btn btn-xs btn-success pull-right" v-if="user.role_id == 1">
+									<i class="fa fa-eye" aria-hidden="true"></i>
+									Ver
+								</router-link>
+								<h3 class="panel-title">
+									<i class="fa fa-info-circle" aria-hidden="true"></i>
+									Artículo prestado
+								</h3>
+							</div>
+							<div class="panel-body">
+								<div class="col-xs-4 text-center">
+									<i class="text-muted">
+										<i class="fa fa-barcode" aria-hidden="true"></i>
+										Código de barras
+									</i>
+									<br>
+									<b class="text-success">
+										{{loan.loanable.barcode}}
+									</b>
+								</div>
+								<div class="col-xs-4 text-center" style="border-left: 1px solid #ccc;border-right: 1px solid #ccc;">
+									<i class="text-muted">
+										<i class="fa fa-info-circle" aria-hidden="true"></i>
+										Descripción
+									</i>
+									<br>
+									<span>
+										{{loan.loanable.named}}
+									</span>
+								</div>
+								<div class="col-xs-4 text-center">
+									<i class="text-muted">
+										<i class="fa fa-sticky-note" aria-hidden="true"></i>
+										Nota
+									</i>
+									<br>
+									<i>
+										{{loan.loanable.note}}
+									</i>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-xs-12 col-sm-6 col-md-4">
+						<div class="well">
+							<h3>
+								Usuario autorizador
+							</h3>
+							<i class="text-muted">
+								Usuario que entega el artículo
+							</i>
+							<p>
+								Nombre: {{loan.authorizer.name}} {{loan.authorizer.last_name}}
+							</p>
+							<p>
+								Identificación: {{loan.authorizer.identity_card}}
+							</p>
+							<p v-if="loan.authorizer.student">
+								Carné: {{loan.authorizer.student.license}}
+							</p>
+						</div>
+					</div>
+					<div class="col-xs-12 col-sm-6 col-md-4">
+						<div class="well">
+							<h3>
+								Usuario solicitante
+							</h3>
+							<i class="text-muted">
+								Usuario que solicita el prestamo
+							</i>
+							<p>
+								Nombre: {{loan.user.name}} {{loan.user.last_name}}
+							</p>
+							<p>
+								Identificación: {{loan.user.identity_card}}
+							</p>
+							<p v-if="loan.user.student">
+								Carné: {{loan.user.student.license}}
+							</p>
+						</div>
+					</div>
+					<div class="col-xs-12 col-sm-6 col-md-4">
+						<div class="well">
+							<h3>
+								Usuario receptor
+							</h3>
+							<i class="text-muted">
+								Usuario que recive el artículo al finalizar el prestamo
+							</i>
+							<div v-if="loan.receiver">
+								<p>
+									Nombre: {{loan.receiver.name}} {{loan.receiver.last_name}}
+								</p>
+								<p>
+									Identificación: {{loan.receiver.identity_card}}
+								</p>
+								<p v-if="loan.receiver.student">
+									Carné: {{loan.receiver.student.license}}
+								</p>
+							</div>
+							<div v-else>
+								Aún no se recibe le articulo
+							</div>	
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
 	<script src="lib/jquery.min.js"></script>
 	<script src="lib/vue.min.js"></script>
 	<script src="lib/vue-router.js"></script>
@@ -2394,6 +2433,7 @@
     }
 });
 	</script>
+	<script src="lib/vue-infinite-loading.js"></script>
 	<script src="js/routes.js"></script>
 </body>
 </html>
