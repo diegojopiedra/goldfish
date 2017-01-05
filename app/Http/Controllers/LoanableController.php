@@ -7,7 +7,9 @@ use Illuminate\Http\Request;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use App\Loanable;
+use App\Loan;
 use App\AudiovisualEquipment;
+use App\Http\Controllers\LoanController; 
 
 class LoanableController extends Controller
 {
@@ -112,7 +114,24 @@ class LoanableController extends Controller
      */
     public function destroy($id)
     {
-        //
+       /* $loanController = new LoanController();
+        $loans = $loanController->getLoansByLoanableId($id);
+        
+        try{
+           foreach($loans as $loan){
+                Loan::destroy($loan->id);
+            }
+            $loanable = Loanable::find($id);
+            $loanable->specific;
+            if($loanable->specification_type == "App\BibliographicMaterial"){
+                $loanable->specific->material->delete();
+            }
+            $loanable->specific->delete();
+            $loanable->delete();
+        }catch (Exception $e) {
+            return 'Error when destroy';
+        }*/ 
+            
     }
     
     public function search(Request $request){

@@ -41,7 +41,7 @@ class LoanController extends Controller
      */
     public function index(Request $request)
     {
-        Loan::all();
+        return Loan::paginate();
     }
     private function getConcreteLoanalbe($loanable)
     {
@@ -131,7 +131,18 @@ class LoanController extends Controller
      */
     public function show($id)
     {
-        return Loan::find($id);
+        $loan = Loan::find($id);
+        $loan->user;
+        $loan->authorizer;
+        $loan->user->student;
+        $loan->authorizer->student;
+        if($loan->receiver){
+            $loan->receiver->student;
+        }
+        $loan->penalty;
+        LoanableController::getRelations($loan->loanable);
+        
+        return $loan;
     }
     /**
      * Show the form for editing the specified resource.
@@ -162,8 +173,13 @@ class LoanController extends Controller
      */
     public function destroy($id)
     {
-        //
+        return Loan::find($id)->delete();
     }
+    
+    public function getLoansByLoanableId($id){
+        return Loan::where('loanable_id', $id)->get();
+    }
+    
     public function returnLoan(Request $request)
     {	
 	    $barcode = $request->barcode;
@@ -177,6 +193,7 @@ class LoanController extends Controller
     		try{
     		    $loanable->state_id = $this->available;
                 $loan->user_return_time = date('Y-m-d H:i:s');
+                $loan->receiving_user_id = JWTAuth::toUser($request->token)->id;
                 $loan->loanable;
                 LoanableController::getRelations($loan->loanable);
                 $loanable->save();
@@ -259,12 +276,7 @@ class LoanController extends Controller
     }
     
     public function getActiveHistoryById($id) {
-        
-        $history = Loan::where('loanable_id',$id)
-                   ->get();
-        
-        $result = array("active_history"=>$history);
-        return $result;
+        return json_decode(Loan::where('loanable_id',$id)->orderBy('created_at', 'desc')->simplePaginate(20)->toJson());
     }
     
     public function lastLoanByActive($loanable_id) {

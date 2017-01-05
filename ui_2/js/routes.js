@@ -1,6 +1,10 @@
 const wss = "https://goldfish-juancub.c9users.io/public/index.php/";
 Vue.config.debug = true
 
+String.prototype.capitalizeFirstLetter = function() {
+    return this.charAt(0).toUpperCase() + this.slice(1);
+}
+
 Date.prototype.sqlFormat = function(full) {
   var mm = ('00' + (this.getMonth() + 1)).slice(-2); // getMonth() is zero-based
   var dd = ('00' + this.getDate()).slice(-2);
@@ -147,7 +151,7 @@ const Login = {
 	template: '#loginTemplate',
 	data: function () {
 		return {
-		  	email: 'katherine.rodríguez1@hotmail.es',
+		  	email: 'vanessa.calderon1@ucrso.info',
 		  	password: '1234',
 		  	loading: false
 		}
@@ -201,44 +205,49 @@ const LoanablePanel = {
 	data: function () {
 		return {
 			type: 'ss',
+			scrollPosition: 0,
+			scrollHeight: 0,
+			clientHeight: 0,
+			brands: [],
+			models: [],
+			types: [],
+			states: [],
 			loanable: {},
 		  	init: initLoanablePanel(this)
 		}
 	},
 	methods:{
+		moment: function (data) {
+  			return moment(data);
+  		},
+  		handleScroll: function(e) {
+            var currentScrollPosition = e.srcElement.scrollTop;
+            this.scrollPosition = currentScrollPosition;
+            var scrollHeight = this.scrollHeight = e.srcElement.scrollHeight;
+            var clientHeight = this.clientHeight = e.srcElement.clientHeight;
+            
+            if(clientHeight+currentScrollPosition >= (scrollHeight-20)){
+            	console.log('Cargar más');
+            }
+		}
 	},
 	watch: {
 		$route: function () {
 			initLoanablePanel(this);
 		},
 		type: function (newVal, oldVal) {
-			console.log('type newVal = ', newVal, ', oldVal = ', oldVal);
+			
+		},
+		loanable: function (newVal, oldVal) {
+			console.log(newVal)
+		},
+		type: function (newVal, oldVal) {
+			
 		},
 		loanable: function (newVal, oldVal) {
 			console.log('loanable newVal = ', newVal, ', oldVal = ', oldVal);
 		}
 	}
-}
-
-const MaterialCartographicManagement = {
-	template: "#materialCartographicManagementTemplate",
-	data: function () {
-		return {
-			pageIndex: this.$route.params.pages,
-			page: {},
-			material_cartographic_managment: cartographicLoad(this)
-		}
-	},
-		methods:{
-	  	loading: function() {
-			cartographicLoad(this);
-	  	}
-  	},
-	watch: {
-		$route: function(){
-			this.loanding()
-		}
-	},
 }
 
 const ConfigManager = {
@@ -258,77 +267,6 @@ const ConfigManager = {
 			this.loanding()
 		}
 	},
-}
-
-const AudiovisualEquipmentManagement = {
-	template: "#audiovisualEquipmentManagementTemplate",
-	data: function () {
-		return {
-			pageIndex: this.$route.params.pages,
-			page: {},
-			audiovisual_equipment_managment: audiovisualLoad(this)
-		}
-	},
-	methods:{
-	  	loading: function() {
-			audiovisualLoad(this);
-	  	}
-  	},
-  	watch: {
-  		$route: function () {
-  			this.loading()
-  		}
-  	},
-}
-
-const AudiovisualEquipmentPanel = {
-	template: "#audiovisualEquipmentPanelTemplate",
-	data: function () {
-		return {
-			types: [],
-			brands: [],
-			models: [],
-			states: [],
-			audiovisual_data:{},
-			audiovisual_id: this.$route.params.id,
-			audiovisual_equipment_panel: audiovisualPanelLoad(this)
-		}
-	},
-	methods:{
-	  	loading: function() {
-			audiovisualPanelLoad(this);
-	  	}
-  	},
-  	watch: {
-  		$route: function () {
-  			this.loading()
-  		}
-  	}
-}
-
-const MaterialCartographicPanel = {
-	template: "#materialCartographicPanelTemplate",
-	data: function() {
-		return {
-			bibliographic_materials: [],
-			editorials: [],
-			cartographic_panel:{},
-			cartographic_formats: [],
-			cartographic_data:{},
-			cartographic_id: this.$route.params.id,
-			cartographic_panel: cartographicPanelLoad(this)
-		}
-	},
-	methods:{
-		loading: function() {
-			cartographicPanelLoad(this);
-		}
-	},
-	watch: {
-		$route: function(){
-			this.loading()
-		}
-	}
 }
 
 const SearchPanel = {
@@ -416,6 +354,13 @@ const SearchPanel = {
 		}
 	},
 	methods:{
+		deleteLoanable: function (loanable) {
+			message("Tome en cuenta que si borrar el articulo " + loanable.barcode + " (" + loanable.named + ") perderá también su historial de prestamos", "¿Realmente desea borrar " + loanable.barcode + "?" , "Borrar", function() {
+				closeModal();
+				deleteLoanable(loanable.id, this);
+				//router.push('usuario/' + msg.id);
+			});
+		},
 		search: function() {
 			initSearchPanel(this)
 		},
@@ -482,26 +427,16 @@ const Statistics = {
   	  }
   	}
 }
-  	
-const BibliographicMaterial = { 
-	template: "#bibliographic-materialTemplate",
-	data: function () {
 
-	},
-  	methods:{
-  		
-	  	loading: function() {
-	  		//
-	  		//Load(this);
-	  	  }
-	  	},
-	  
-	  	watch: {
-  		$route: function () {
-  			this.loading()
-  		}
-  	}
-  	}
+const Dashboard = {
+	template: "#dashboardPanel",
+	data: function(){
+		return {
+			multas: [],
+			init: intiDashboard(this)
+		}
+	}
+}
   	
 const AllUsersManagement = { 
 	template: "#allUsersManagementTemplate",
@@ -597,25 +532,22 @@ const SingleUser= {
   	  }
   	}
   	
-const SingleBook= { 
-	template: "#singleBookTemplate",
+const Loan = {
+	template: '#loanDetails',
 	data: function () {
-
+		return {
+			loan: null,
+			init: initLoanPage(this)
+		}
 	},
-  	methods:{
-  		
-	  	loading: function() {
-	  		//Load(this);
-	  	  }
-	  	},
-
-	  	watch: {
-  		$route: function () {
-  			this.loading()
-  		}
-  	  }
-  	}
+	methods: {
+		moment: function (data) {
+  			return moment(data);
+  		},
+	}
+}
   	
+  	/***/
 const AudiovisualMaterialManagment= { 
 	template: "#audiovisualMaterialManagementTemplate",
 	data: function () {
@@ -740,19 +672,16 @@ const router = new VueRouter({
 	  { path: '/login', alias: '/', component: Login, meta: { requiresLogout: true } },
 	  { path: '/generalConfig', component: ConfigManager, meta: { requiresAuth: true } },
 	  { path: '/prestamos', component: LoanPanel, meta: { requiresAuth: true } },
-	  { path: '/equipo-audiovisual/:page', name: 'equipo-audiovisual', component: AudiovisualEquipmentManagement, meta: { requiresAuth: true } },
-	  { path: '/equipo-audiovisual-panel/:id', name: 'equipo-audiovisual-panel', component: AudiovisualEquipmentPanel, meta: { requiresAuth: true } },
-	  { path: '/material-cartografico-panel/:page', name: 'material-cartografico-panel', component: MaterialCartographicManagement, meta: { requiresAuth: true } },
-	  { path: '/material-cartografico/:id', name: 'material-cartografico', component: MaterialCartographicPanel, meta: { requiresAuth: true } },
 	  { path: '/estadisticas', name: 'estadisticas', component: Statistics, meta: {requiresAuth: true}},
 	  { path: '/gestion/:page', name:'gestion', component: SearchPanel, meta: {requiresAuth: true}},
 	  { path: '/personas/:page', name: 'personas', component: AllUsersManagement, meta: {requiresAuth: true}},
 	  { path: '/usuario/:id', name: 'usuario', component: SingleUser, meta: {requiresAuth: true}},
-	  { path: '/libro', name: 'book', component: SingleBook, meta: {requiresAuth: true}},
 	  { path: '/objeto-tridimensional/:page', name: 'objeto-tridimensional', component: ThreeDimensionalObjectManagement, meta: { requiresAuth: true } },
 	  { path: '/objeto-tridimensional-panel/:id', name: 'objeto-tridimensional-panel', component: ThreeDimensionalObjectPanel, meta: { requiresAuth: true } },
 	  { path: '/material-audiovisual-panel/:id', name: 'material-audiovisual-panel', component: AudiovisualMaterialPanel, meta: {requiresAuth: true}},
 	  { path: '/material-audiovisual/:page', name: 'material-audiovisual', component: AudiovisualMaterialManagment, meta: { requiresAuth: true } },
+	  { path: '/administrador', name: 'administrador', component: Dashboard, meta: { requiresAuth: true } },
+	  { path: '/prestamo/:id', name: 'prestamo', component: Loan, meta: { requiresAuth: true } },
 	  { path: '/activo/:id', name: 'activo', component: LoanablePanel, meta: { requiresAuth: true } },
 	  { 
 	  	path: '/user/:id', 
@@ -947,6 +876,24 @@ function datepicker_init(parent) {
 $(document).ready(function () {
 
 	datepicker_init();
+	
+	toastr.options = {
+	  "closeButton": true,
+	  "debug": false,
+	  "newestOnTop": false,
+	  "progressBar": false,
+	  "positionClass": "toast-bottom-right",
+	  "preventDuplicates": false,
+	  "onclick": null,
+	  "showDuration": "300",
+	  "hideDuration": "1000",
+	  "timeOut": "5000",
+	  "extendedTimeOut": "1000",
+	  "showEasing": "swing",
+	  "hideEasing": "linear",
+	  "showMethod": "fadeIn",
+	  "hideMethod": "fadeOut"
+	}
 
 	$('#modal').on('hidden.bs.modal', function () {
 	    app.modal.isOpen = false;
@@ -1146,6 +1093,7 @@ function tabAnimation(text, oldText = head.tab) {
 }
 
 function onEnter(element) {
+	$(document).unbind( "keypress" );
 	$(document).keypress(function(e) {
 	    if(e.which == 13) {
 	        element.click();
@@ -2091,16 +2039,22 @@ function initLoanablePanel(parent){
 		var loanableAjax = $.ajax({
 				method: "GET",
 				dataType: 'json',
-				url: wss + "loanable/" + parent.$route.params.id,
+				url: wss + "loanable-panel-resource",
 				data:{
-					token: sessionStorage.getItem('token')
+					token: sessionStorage.getItem('token'),
+					loanable: parent.$route.params.id
 				},
 				context: parent
 			});
 			
-		loanableAjax.done(function (msg) {
-			console.log(msg);
-			parent.loanable = msg;
+		loanableAjax.done(function (resource) {
+			console.log(resource);
+			parent.models = resource.models;
+			parent.brands = resource.brands;
+			parent.types = resource.types;
+			parent.states = resource.states;
+			parent.loanable = resource.loanable;
+			parent.loans = resource.loans;
 			switch (parent.loanable.specification_type) {
 				case 'App\\AudiovisualEquipment':
 					parent.type = 'equipo';
@@ -2131,4 +2085,62 @@ function initLoanablePanel(parent){
 			toastr['error']('Al cargar la información', 'Ha ocurrido un error');
 		});
 	}
+}
+
+function intiDashboard(parent) {
+	var dashdoardAjax = $.ajax({
+		method: "POST",
+		dataType: 'json',
+		url: wss + "dashboard-panel-resource",
+		data:{
+			token: sessionStorage.getItem('token')
+		},
+		context: parent
+	});
+			
+	dashdoardAjax.done(function (resource) {
+		console.log(resource);
+	});
+	dashdoardAjax.fail(function () {
+		toastr['error']('Al cargar la información', 'Ha ocurrido un error');
+	});
+}
+
+function deleteLoanable(id, parent) {
+	var loanableAjax = $.ajax({
+		method: "DELETE",
+		dataType: 'json',
+		url: wss + "loanable/" + id,
+		data:{
+			token: sessionStorage.getItem('token')
+		},
+		context: parent
+	});
+		
+	loanableAjax.done(function (response) {
+		parent.loanableDeleteSuccess(response);
+	});
+	loanableAjax.fail(function (response) {
+		parent.loanableDeleteError(response);
+	});
+}
+
+function initLoanPage(parent){
+	var loanAjax = $.ajax({
+		method: "GET",
+		dataType: 'json',
+		url: wss + "loan/" + parent.$route.params.id,
+		data:{
+			token: sessionStorage.getItem('token')
+		},
+		context: parent
+	});
+			
+	loanAjax.done(function (resource) {
+		console.log(resource);
+		this.loan = resource;
+	});
+	loanAjax.fail(function () {
+		toastr['error']('Al cargar la información', 'Ha ocurrido un error');
+	});
 }

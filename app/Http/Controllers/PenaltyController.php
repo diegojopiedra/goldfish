@@ -25,7 +25,11 @@ class PenaltyController extends Controller
      */
     public function index()
     {
-        //
+        $penalties = Penalty::orderBy('id', 'desc')->paginate();
+        foreach($penalties as $penalty){
+            $penalty->loan;
+        }
+        return $penalties;
     }
 
     /**
@@ -150,4 +154,6 @@ class PenaltyController extends Controller
     //si ya se cumplio cambiarla a ejecutada
     //sacarlas de la lista 
     //y buscar la que tiene mayor plazo.
+    
+   
 }
