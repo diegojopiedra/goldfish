@@ -1,4 +1,4 @@
-const wss = "https://goldfish-juancub.c9users.io/public/index.php/";
+const wss = "http://localhost/goldfish/public/index.php/";
 Vue.config.debug = true
 
 Date.prototype.sqlFormat = function(full) {
@@ -137,7 +137,7 @@ const Login = {
 	template: '#loginTemplate',
 	data: function () {
 		return {
-		  	email: 'katherine.rodríguez1@hotmail.es',
+		  	email: 'farlen.davila1@gmail.com',
 		  	password: '1234',
 		  	loading: false
 		}
@@ -921,9 +921,14 @@ function datepicker_init(parent) {
 	});
 	
 	$('#datePicker').on('change focusout', function (evn) {
+		console.log("$('#datePicker').on('change focusout', function (evn) {");
 		if(parent != null){
 			parent.return_time = $(this).val();
 		}
+	});
+
+	$('.day').click(function (evn) {
+		console.log('.day' , evn);
 	});
 	
 }
