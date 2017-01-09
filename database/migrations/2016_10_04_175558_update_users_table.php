@@ -21,7 +21,7 @@ class UpdateUsersTable extends Migration
             $table->date('next_update_time');
             $table->boolean('active');
             $table->string('exact_address');
-            $table->integer('id_district')->unsigned();
+            $table->integer('id_district');
             $table->integer('role_id')->unsigned(); 
             $table->foreign('id_district')->references('id')->on('districts');
             $table->foreign('role_id')->references('id')->on('roles');

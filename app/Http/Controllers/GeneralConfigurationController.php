@@ -17,7 +17,7 @@ class GeneralConfigurationController extends Controller
      */
     public function index()
     {
-        return ConfigurationGeneral::all();
+        return GeneralConfiguration::find(1);
     }
 
     /**

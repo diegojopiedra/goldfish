@@ -13,10 +13,11 @@ class CreateDistrictTable extends Migration
     public function up()
     {
          Schema::create('districts', function (Blueprint $table) {
-             $table->increments('id');
+             $table->integer('id');
              $table->string('name');
+             $table->primary('id');
              $table->integer('id_canton');
-             $table->integer('number');
+             $table->foreign('id_canton')->references('id')->on('cantons');
              $table->timestamps();
          });
     }

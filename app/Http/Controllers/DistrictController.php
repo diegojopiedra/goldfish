@@ -91,4 +91,15 @@ class DistrictController extends Controller
     {
         //
     }
+
+    public function getBySameCanton($idDistrict)
+    {
+        $cantonId = $this->show($idDistrict)->id_canton;
+        return $this->fromCanton($cantonId);
+    }
+
+    public function fromCanton($cantonId)
+    {
+       return District::where('id_canton', $cantonId)->get();
+    }
 }

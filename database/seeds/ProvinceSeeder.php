@@ -13,16 +13,18 @@ class ProvinceSeeder extends Seeder
     public function run()
     {
         $names = [
-        'San José',
-        'Heredia',
-        'Cartago',
-        'Puntarenas',
-        'Guanacaste',
-        'Limón',
+        'SAN JOSÉ',
+        'ALAJUELA',
+        'HEREDIA',
+        'CARTAGO',
+        'PUNTARENAS',
+        'GUANACASTE',
+        'LIMÓN',
         ];
-        for ($i = 0; $i < count($names); $i++) {
+        for ($i = 1; $i <= count($names); $i++) {
             Province::create ([
-                'name' => $names[$i],
+                'id' => $i,
+                'name' => $names[$i-1],
             ]);
         }
         

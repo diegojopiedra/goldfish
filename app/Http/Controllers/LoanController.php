@@ -41,7 +41,22 @@ class LoanController extends Controller
      */
     public function index(Request $request)
     {
-        return Loan::paginate();
+        $order = $request->order;
+        if($order == 'desc' || $order == 'asc'){
+            $loans = Loan::orderBy('id', $order)->paginate();
+        }else{
+            $loans = Loan::paginate();
+        }
+        
+        foreach ($loans as $loan) {
+            $loan->user;
+            $loan->receiver;
+            $loan->authorizer;
+            $loan->penalty;
+            LoanableController::getRelations($loan->loanable);
+        }
+
+        return $loans;
     }
     private function getConcreteLoanalbe($loanable)
     {
@@ -134,9 +149,12 @@ class LoanController extends Controller
         $loan = Loan::find($id);
         $loan->user;
         $loan->authorizer;
+        $loan->user->photos;
+        $loan->authorizer->photos;
         $loan->user->student;
         $loan->authorizer->student;
         if($loan->receiver){
+            $loan->receiver->photos;
             $loan->receiver->student;
         }
         $loan->penalty;

@@ -52,8 +52,13 @@
 				<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
 					<ul class="nav navbar-nav">
 						<li  v-if="user.name">
-							<router-link to="/prestamos">
-								<i class="fa fa-bookmark" aria-hidden="true"></i> Préstamos <span class="sr-only">(current)</span>
+							<router-link to="/panel-prestamos">
+								<i class="fa fa-bookmark" aria-hidden="true"></i> Prestar/Devolver
+							</router-link>
+						</li>
+						<li  v-if="user.name">
+							<router-link to="/historial">
+								<i class="fa fa-history" aria-hidden="true"></i> Historial de prestamos
 							</router-link>
 						</li>
 						<li  v-if="user.name"><a href="#/personas/1"><i class="fa fa-users" aria-hidden="true"></i> Personas</a></li>
@@ -78,8 +83,15 @@
 							<a class = "fa fa-question" style="color: white;" href="#/" v-on:click="showHelp()" class="btn btn-primary"></a>
  						</li>
 						<li class="dropdown" v-if="user.name">
-							<a  href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-								{{user.name}} <span class="caret" ></span></a>
+							<a  href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" style="padding: 13px;">
+								<img 
+									v-bind:src="(user.photos.length > 0)?imgDir+(user.photos[0]).path:imgDir+defaultUserImg"
+									v-bind:alt="'Imagen de ' + user.name"
+									class="img-rounded"
+									style="width: 24px;"
+								>
+								{{user.name}}
+								<span class="caret" ></span></a>
 							<ul class="dropdown-menu">
 								<li>
 									<router-link :to="{ name: 'usuario', params: { id: user.id }}" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
@@ -432,12 +444,26 @@
 	</div>
 	<div style="display:none" id="allUsersManagementTemplate">
 		<div class="col-xs-12 col-sm-10 col-sm-offset-1" :listing-id="users_managment"> 
-			<div class="well container-fluid">
-				<h3>
+			<div class="well">
+				<h2>
+					<i class="fa fa-users"></i>
 					Personas
-				</h3>
+				</h2>
+				<div class="input-group">
+					<input type="text" placeholder="Buscar" class="form-control">
+					<span class="input-group-btn">
+						<button type="button" class="btn btn-default">
+							<i class="fa fa-times"></i>
+						</button>
+						<button type="button" class="btn btn-info"><i class="fa fa-search"></i>
+							Buscar
+						</button>
+					</span>
+				</div>
+			</div>
+			<div class="well container-fluid">
 			
-					<router-link  class="btn btn-primary pull-right" :to="{ name: 'usuario', params: { id: 'new' }}">
+					<router-link  class="btn btn-primary pull-right" :to="{ name: 'usuario', params: { id: 'nuevo' }}">
 						<i class="fa fa-user-plus"></i> Agregar persona
 					</router-link>
 					
@@ -477,6 +503,9 @@
 					<thead>
 						<tr>
 							<th>
+								
+							</th>
+							<th>
 								Identificación
 							</th>
 							<th>
@@ -498,26 +527,34 @@
 					</thead>
 					<tbody>
 						<template v-for="singleUser in page.data" >
-							<tr  >
-								<td>
+							<tr class="v-aling-center">
+								<td class="v-aling-center">
+									<img 
+										v-bind:src="(singleUser.photos.length > 0)?imgDir+(singleUser.photos[0]).path:imgDir+defaultUserImg"
+										v-bind:alt="'Imagen de ' + singleUser.name"
+										class="img-circle"
+										style="width: 35px;"
+									>
+								</td>
+								<td class="v-aling-center">
 									<router-link  :to="{ name: 'usuario', params: { id: singleUser.id }}">
 										{{singleUser.identity_card}}
 									</router-link>
 								</td>
-								<td>
+								<td class="v-aling-center">
 									<router-link  :to="{ name: 'usuario', params: { id: singleUser.id }}">
 										{{singleUser.name}}
 									</router-link>
 								</td>
-								<td>
+								<td class="v-aling-center">
 									<router-link  :to="{ name: 'usuario', params: { id: singleUser.id }}">
 										{{singleUser.last_name}}
 									</router-link>
 								</td>
-								<td>
+								<td class="v-aling-center">
 									{{(singleUser.active)?"Activo":"Inactivo"}}
 								</td>
-								<td>
+								<td class="v-aling-center">
 									{{singleUser.role.type}}
 								</td>
 								<td v-if="singleUser.next_update_time > (new Date()).sqlFormat()" class="text-success">
@@ -525,6 +562,16 @@
 								</td>
 								<td v-if="!(singleUser.next_update_time > (new Date()).sqlFormat())" class="text-danger">
 									<i class="fa fa-times-circle-o"></i> Desactualizados
+								</td>
+								<td class="v-aling-center">
+									<router-link  :to="{ name: 'usuario', params: { id: singleUser.id }}" class="btn btn-primary btn-xs">
+										<i class="fa fa-eye"></i>
+										Ver
+									</router-link>
+									<button class="btn btn-danger btn-xs">
+										<i class="fa fa-trash-o"></i>
+										Borrar
+									</button>
 								</td>
 							</tr>
 						</template>
@@ -560,50 +607,75 @@
 	<div style="display:none" id="singleUserTemplate" :listing-id="single_user_panel">
 		<div class="">
 			<div class="col-xs-12 col-sm-6">
-				<div class="well container-fluid">
-					<h3 class="unselectable">
-						<span>{{user_data.name}} {{user_data.last_name}}</span>
-						<i v-if="(user_data.name == null || user_data.name == '') && (user_data.last_name == null ||user_data.last_name == '')" class="text-muted">Sin nombre</i>
+				<div class="panel panel-default shadow" v-bind:class="{'panel-success':user_data.next_update_time > date.sqlFormat(), 'panel-danger':user_data.next_update_time <= date.sqlFormat()}">
+					<div class="panel-heading">
+						<h3 class="panel-title" style="display: inline-block;">
+							Resumen 
+						</h3>
 						<small>
-							<label class="label label-default" v-bind:class="{'label-success' : user_data.active}">
-								Activo <i class="fa fa-check-square-o" v-if="user_data.active"></i>
-								<i class="fa fa-square-o" v-if="!user_data.active"></i>
-								<input type="checkbox" id="active"  v-model="user_data.active" style="display:none"/>
-							</label>
+							<span v-if="user_data.next_update_time > date.sqlFormat()">
+								(Datos actualizados <i class="fa fa-check-circle-o"></i>)
+							</span>
+							<span v-else>
+								(Datos desactualizados <i class="fa fa-times-circle-o"></i>)
+							</span>
 						</small>
-					</h3>
-					<div class="col-xs-12">
-						<button class="btn btn-warning pull-right btn-sm">
-							<i class="fa fa-lock"></i> Generar contraseña
-						</button>
 					</div>
-					<div class="col-xs-12 col-md-6" v-if="roles.length > 0">
-						<div class="form-group">
-							<label for="roll">Rol</label>
-							<div class="input-group has-default">				
-								<span class="input-group-addon" id="user">
-									<i class="fa fa-cog"></i>
-								</span> 
-								<select class="form-control" v-model="user_data.role" id="roll">
-									<template v-for="roll in roles">
-										<option v-bind:value="roll">
-											{{roll.type}}
-										</option>
-									</template>
-								</select>
+					<div class="panel-body">
+						<div class="row">
+							<div class="col-xs-4">
+								<div>
+									<button class="btn btn-sm btn-default" :disabled="!user_data.id" style="position: absolute;right: 25px;bottom: 10px;"><i class="fa fa-camera" aria-hidden="true"></i></button>
+									<img 
+										v-bind:src="(user_data.photos && user_data.photos.length > 0)?imgDir+(user_data.photos[0]).path:imgDir+defaultUserImg"
+										v-bind:alt="'Imagen de ' + user_data.name"
+										class="img-thumbnail"
+									>
+								</div>
+							</div>
+							<div class="col-xs-8">
+								<h3>
+									<span>{{user_data.name}} {{user_data.last_name}}</span>
+									<i v-if="(user_data.name == null || user_data.name == '') && (user_data.last_name == null ||user_data.last_name == '')" class="text-muted">Sin nombre</i>
+									<br>
+									<small class="unselectable">
+										<label class="label label-default" v-bind:class="{'label-success' : user_data.active}">
+											Activo <i class="fa fa-check-square-o" v-if="user_data.active"></i>
+											<i class="fa fa-square-o" v-if="!user_data.active"></i>
+											<input type="checkbox" id="active"  v-model="user_data.active" style="display:none"/>
+										</label>
+									</small>
+								</h3>
+								<p>
+									<i class="fa fa-id-card-o"></i> Cédula: <i class="text-muted" v-if="user_data.identity_card == ''">Sin cédula registrada</i> <b>{{user_data.identity_card}}</b>
+								</p>
+								<p v-if="isStudent">
+									<i class="fa fa-address-card"></i> Carné: <i class="text-muted" v-if="user_data.student.license == ''">Sin carné registrado</i><b>{{user_data.student.license}}</b>
+								</p>
+								<p v-if="user_data.role">
+									<i class="fa fa-cog"></i> Rol: <b>{{user_data.role.type}}</b>
+								</p>
+								<p v-else class="text-muted">
+									<i class="fa fa-cog"></i> <i>Sin rol asignado</i>
+								</p>
+								<button class="btn btn-warning pull-right btn-sm" v-if="user_data.role.id != 3">
+									<i class="fa fa-lock"></i> Generar contraseña
+								</button>
 							</div>
 						</div>
 					</div>
-					<br>
-				<!--	{{user_data}} -->
-					<div class="col-xs-12 col-md-6">
-						<div class="form-group">
-							<label for="identity_card">Cédula</label>
-							<div class="input-group has-default">				
-								<span class="input-group-addon" id="user">
-									<i class="fa fa-id-card-o"></i>
-								</span> 
-								<input class="form-control" id="identity_card" v-model="user_data.identity_card" aria-describedby="user" placeholder="Cédula" autofocus="autofocus" type="text">
+				</div>
+				<div class="well container-fluid">
+					<div class="col-xs-12">
+						<div class="form-group" v-bind:class="{'has-success':user_data.next_update_time > date.sqlFormat(), 'has-error':user_data.next_update_time <= date.sqlFormat()}">
+							<div class="input-group has-default">
+								<span id="user" class="input-group-addon">
+									<i class="fa fa-calendar"></i> Próxima actualizacion
+								</span>
+								<input id="datePickerAll" type="text" id="next_update_time" placeholder="Fecha de próxima actualizacion" aria-describedby="date" enable="enable" class="form-control" v-model="moment(user_data.next_update_time + ' 00:00:00').format('DD [de] MMMM [del] YYYY')">
+								<span class="input-group-btn">
+							        <button class="btn" type="button" v-bind:class="{'btn-success':user_data.next_update_time > date.sqlFormat(), 'btn-danger':user_data.next_update_time <= date.sqlFormat()}" v-on:click="setSuggestedUpdateTime()">Fecha sugerida</button>
+							    </span>
 							</div>
 						</div>
 					</div>
@@ -626,6 +698,45 @@
 									<i class="fa fa-user" ></i>
 								</span>
 								<input autofocus="autofocus" id="last_name" type="text" v-model="user_data.last_name" placeholder="Apellidos" aria-describedby="user" class="form-control">
+							</div>
+						</div>
+					</div>
+					<div class="col-xs-12 col-md-6" v-if="roles.length > 0">
+						<div class="form-group">
+							<label for="roll">Rol</label>
+							<div class="input-group has-default">				
+								<span class="input-group-addon" id="user">
+									<i class="fa fa-cog"></i>
+								</span> 
+								<select class="form-control" v-model="user_data.role" id="roll">
+									<template v-for="roll in roles">
+										<option v-bind:value="roll">
+											{{roll.type}}
+										</option>
+									</template>
+								</select>
+							</div>
+						</div>
+					</div>
+					 <div class="col-xs-12 col-md-6">
+						<div class="form-group">
+							<label for="last_name">Carné</label>
+							<div class="input-group has-default">
+								<span id="user" class="input-group-addon">
+									Estudiante <input type="checkbox" v-model="isStudent" name="">
+								</span>
+								<input :disabled="!isStudent" autofocus="autofocus" id="last_name" type="text" v-model="user_data.student.license" placeholder="Carné" aria-describedby="user" class="form-control">
+							</div>
+						</div>
+					</div>
+					<div class="col-xs-12 col-md-6">
+						<div class="form-group">
+							<label for="identity_card">Cédula</label>
+							<div class="input-group has-default">				
+								<span class="input-group-addon" id="user">
+									<i class="fa fa-id-card-o"></i>
+								</span> 
+								<input class="form-control" id="identity_card" v-model="user_data.identity_card" aria-describedby="user" placeholder="Cédula" autofocus="autofocus" type="text">
 							</div>
 						</div>
 					</div>	
@@ -670,7 +781,13 @@
 								<span class="input-group-addon">
 									<i class="fa fa-globe"></i>
 								</span>
-								<input autofocus="autofocus" id="province" type="text" v-model="user_data.province" placeholder="Provincia" aria-describedby="user" class="form-control">
+								<select v-model="province_data" class="form-control">
+									<template v-for="province in provinces">
+										<option v-bind:value="province">
+											{{province.name}}
+										</option>
+									</template>
+								</select>
 							</div>
 						</div>
 					</div>
@@ -681,7 +798,13 @@
 								<span class="input-group-addon">
 									<i class="fa fa-globe"></i>
 								</span>
-								<input autofocus="autofocus" id="canton" type="text" v-model="user_data.canton" placeholder="Cantón" aria-describedby="user" class="form-control">
+								<select v-model="canton_data" class="form-control">
+									<template v-for="canton in cantons_current_province">
+										<option v-bind:value="canton">
+											{{canton.name}}
+										</option>
+									</template>
+								</select>
 							</div>
 						</div>
 					</div>
@@ -692,30 +815,21 @@
 								<span class="input-group-addon">
 									<i class="fa fa-globe"></i>
 								</span>
-								<input autofocus="autofocus" id="district" type="text" v-model="user_data.id_district" placeholder="Distrito" aria-describedby="user" class="form-control">
+								<select v-model="district_data" class="form-control">
+									<template v-for="district in districts_current_canton">
+										<option v-bind:value="district">
+											{{district.name}}
+										</option>
+									</template>
+								</select>
 							</div>
 						</div>
 					</div>
-					<div class="col-xs-12 col-md-6">
+					<div class="col-xs-12">
 						<div class="form-group">
 							<label for="exact_address">Dirección Exacta</label>
-							<div class="input-group has-default">
-								<span class="input-group-addon">
-									<i class="fa fa-map-marker"></i>
-								</span>
-								<input autofocus="autofocus" id="exact_address" type="text" v-model="user_data.direction" placeholder="Dirección Exacta" aria-describedby="user" class="form-control">
-							</div>
-						</div>
-					</div>
-					<div class="col-xs-12 col-md-6">
-						<div class="form-group" v-bind:class="{'has-success':user_data.next_update_time > date.sqlFormat(), 'has-error':user_data.next_update_time <= date.sqlFormat()}">
-							<label for="next_update_time">Válido hasta:</label>
-							<div class="input-group has-default">
-								<span id="user" class="input-group-addon">
-									<i class="fa fa-calendar"></i>
-								</span>
-									<input type="text" id="next_update_time" placeholder="Fecha de próxima actualizacion" aria-describedby="date" enable="enable" class="form-control" v-model="user_data.next_update_time">
-							</div>
+							<textarea placeholder="Dirección Exacta" v-model="user_data.direction" class="form-control" style="resize: none;">
+							</textarea>
 						</div>
 					</div>
 					
@@ -736,6 +850,123 @@
 				</div>
 			</div>
 			<div class="col-xs-12 col-sm-6">
+				<div class="panel panel-primary shadow">
+					<div class="panel-heading">
+						<h3 class="panel-title">
+							<i aria-hidden="true" class="fa fa-history"></i>
+							Historial de prestamos
+						</h3>
+					</div>
+					<div class="panel-body" v-if="!user_data.loans || user_data.loans.length == 0">
+						<div style="font-size: 25px;border: 1px solid #999;border-radius: 6px;" class="text-muted text-center"><i style="font-size: 4em" class="fa fa-tag"></i> <br>
+							No se registran préstamos
+						</div>
+					</div>
+					<table class="table table-hover" v-else>
+						<thead>
+							<tr>
+								<th>
+									Prestamo
+								</th>
+								<th>
+									Código
+								</th>
+								<th>
+									Solicitado
+								</th>
+								<th>
+									Devuelto
+								</th>
+								<th>
+									Multa
+								</th>
+								<th>
+									
+								</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr v-for="loan in user_data.loans">
+								<td>
+									{{loan.id}}
+								</td>
+								<td>
+									{{loan.loanable.barcode}}
+								</td>
+								<td>
+									{{moment(loan.departure_time).calendar()}}
+								</td>
+								<td v-if="loan.user_return_time != '0000-00-00 00:00:00'">
+									{{moment(loan.user_return_time).calendar()}}
+								</td>
+								<td v-else>
+									En curso
+								</td>
+								<td>
+									{{loan.penalty != null}}
+								</td>
+								<td>
+									<router-link  :to="{ name: 'prestamo', params: { id: loan.id }}" aria-label="Previous" class="btn btn-success btn-xs pull-right">
+							        	<span class="fa fa-info-circle"></span>
+										Detalles
+									</router-link>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+
+				<div class="panel panel-danger shadow">
+					<div class="panel-heading">
+						<h3 class="panel-title">
+							<i aria-hidden="true" class="fa fa-history"></i>
+							Historial de multas
+						</h3>
+					</div>
+					<div class="panel-body text-muted" v-if="!user_data.penalties || user_data.penalties.length == 0">
+						<div style="font-size: 25px;border: 1px solid #999;border-radius: 6px;" class="text-muted text-center">
+							<i style="font-size: 4em;" class="fa fa-ban text-muted"></i> 
+							<br>
+							Usuario sin multas
+						</div>
+					</div>
+					<table class="table table-hover" v-else>
+						<thead>
+							<tr>
+								<th>
+									Prestamo
+								</th>
+								<th>
+									Horas tarde
+								</th>
+								<th>
+									Finalización
+								</th>
+								<th>
+									
+								</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr v-for="penalty in user_data.penalties">
+								<td>
+									{{penalty.loan.id}}
+								</td>
+								<td>
+									
+								</td>
+								<td>
+									{{penalty.penalty_time_finish}}
+								</td>
+								<td>
+									detalles
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+			<!--<div class="col-xs-12 col-sm-6">
 				<div class="well container-fluid"> 
 					<div class="col-xs-12">
 						<h3 class="text-danger">
@@ -795,7 +1026,7 @@
 						</div>
 					</div>
 				</div>
-			</div>
+			</div>-->
 		</div>
 	</div>
 	<div style="display:none" id="audiovisualMaterialManagementTemplate">
@@ -1648,7 +1879,7 @@
 	</div>
 	<div style="display:none" id="loanableTemplate">
 		<div class="container-fluid" :listing-id="init">
-			<div class="col-xs-12 col-sm-6">
+			<div class="col-xs-12 col-sm-5">
 				<div class="panel panel-default card-wrapper shadow">
 					<div class="card-icon">
 						<div id="icon-box" style="height: 250px;">
@@ -1883,7 +2114,7 @@
 					</p>
 				</div>
 			</div>
-			<div class="col-xs-12 col-sm-6">
+			<div class="col-xs-12 col-sm-7">
 				<div class="panel panel-info shadow">
 					<div class="panel-heading">
 						<b>
@@ -1985,7 +2216,14 @@
 											<td v-else>
 												<i class="text-muted">
 													<i class="fa fa-clock-o" aria-hidden="true"></i>
-													Todavía en prestamo
+													En prestamo
+													<br>
+													<span class="text-danger" v-if="isShowableAlert(loan.return_time)">
+														({{moment(loan.return_time).fromNow(true)}} tarde)
+													</span>
+													<span class="text-primary" v-if="!isShowableAlert(loan.return_time)">
+														({{moment(loan.return_time).fromNow(true)}} para terminar)
+													</span>
 												</i>	
 											</td>
 											<td>
@@ -2236,6 +2474,33 @@
 	<div style="display:none" id="loanDetails">
 		<div :listing-id="init">
 			<div class="container-fluid" v-if="loan">
+				<div class="alert alert-danger" role="alert" v-if="isShowableAlert(loan.return_time)">
+					<i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+					<b>¡Alerta!</b> 
+					El usaurio 
+					<router-link  :to="{ name: 'usuario', params: { id: loan.user.id }}" class="alert-link">
+						<b>{{loan.user.identity_card}}</b> - {{loan.user.name}} {{loan.user.last_name}}
+					</router-link>
+					tenía que haber devuelto el prestamo 
+					<b>
+						{{moment(loan.return_time).fromNow()}}.
+					</b>
+				</div>
+				<div class="panel panel-danger shadow" v-if="loan.penalty">
+					<div class="panel-heading">
+						<!--<router-link  v-if="loan.receiver" :to="{ name: 'usuario', params: { id: loan.receiver.id }}" class="btn btn-xs btn-success pull-right">
+							<i class="fa fa-eye" aria-hidden="true"></i>
+							Ver
+						</router-link>-->
+						<h3 class="panel-title">
+							<i class="fa fa-clock-o" aria-hidden="true"></i>
+							Se ha efectuado una multa a este prestamo
+						</h3>
+					</div>
+					<div class="panel-body text-danger">
+						Termina {{moment(loan.penalty.penalty_time_finish).fromNow()}}, el {{moment(loan.penalty.penalty_time_finish).format('dddd DD [de] MMMM [del] YYYY [a las] hh[:]mm a')}}
+					</div>
+				</div>
 				<div class="row">
 					<div class="col-xs-12 col-sm-6">
 						<div class="panel panel-primary shadow">
@@ -2246,10 +2511,13 @@
 								</button>
 								<h3 class="panel-title">
 									<i class="fa fa-info-circle" aria-hidden="true"></i>
-									Detalles del prestramo
+									Detalles del prestamo. 
 								</h3>
 							</div>
 							<div class="panel-body">
+								<p>
+									<b class="text-muted">Identificador único del prestamo: {{loan.id}}</b>
+								</p>
 								<div class="col-xs-4 text-center">
 									<i class="text-muted">
 										<i class="fa fa-clock-o" aria-hidden="true"></i>
@@ -2279,9 +2547,22 @@
 									<b v-if="loan.user_return_time != '0000-00-00 00:00:00'">
 										El {{moment(loan.user_return_time).format('dddd DD [de] MMMM [del] YYYY [-] hh[:]mm a')}}
 									</b>
-									<b v-else class="text-info">
+									<b v-else class="text-info" v-bind:class="{'text-danger':isShowableAlert(loan.return_time)}">
 										<i class="fa fa-circle-o"></i>
 										Prestamo en curso 
+										<br>
+										<small>
+											<span v-if="!isShowableAlert(loan.return_time)">
+												Quedan
+											</span>
+											<span v-else>
+												Debió terminar
+											</span>
+											{{moment(loan.return_time).fromNow(!isShowableAlert(loan.return_time))}}
+											<span v-if="!isShowableAlert(loan.return_time)">
+												de prestamo
+											</span>
+										</small>
 									</b>
 								</div>
 							</div>
@@ -2295,7 +2576,7 @@
 									Ver
 								</router-link>
 								<h3 class="panel-title">
-									<i class="fa fa-info-circle" aria-hidden="true"></i>
+									<i class="fa fa-archive" aria-hidden="true"></i>
 									Artículo prestado
 								</h3>
 							</div>
@@ -2306,9 +2587,11 @@
 										Código de barras
 									</i>
 									<br>
-									<b class="text-success">
-										{{loan.loanable.barcode}}
-									</b>
+									<h4 class="text-success">
+										<b>
+											{{loan.loanable.barcode}}
+										</b>
+									</h4>
 								</div>
 								<div class="col-xs-4 text-center" style="border-left: 1px solid #ccc;border-right: 1px solid #ccc;">
 									<i class="text-muted">
@@ -2336,68 +2619,298 @@
 				</div>
 				<div class="row">
 					<div class="col-xs-12 col-sm-6 col-md-4">
-						<div class="well">
-							<h3>
-								Usuario autorizador
-							</h3>
-							<i class="text-muted">
-								Usuario que entega el artículo
-							</i>
-							<p>
-								Nombre: {{loan.authorizer.name}} {{loan.authorizer.last_name}}
-							</p>
-							<p>
-								Identificación: {{loan.authorizer.identity_card}}
-							</p>
-							<p v-if="loan.authorizer.student">
-								Carné: {{loan.authorizer.student.license}}
-							</p>
-						</div>
-					</div>
-					<div class="col-xs-12 col-sm-6 col-md-4">
-						<div class="well">
-							<h3>
-								Usuario solicitante
-							</h3>
-							<i class="text-muted">
-								Usuario que solicita el prestamo
-							</i>
-							<p>
-								Nombre: {{loan.user.name}} {{loan.user.last_name}}
-							</p>
-							<p>
-								Identificación: {{loan.user.identity_card}}
-							</p>
-							<p v-if="loan.user.student">
-								Carné: {{loan.user.student.license}}
-							</p>
-						</div>
-					</div>
-					<div class="col-xs-12 col-sm-6 col-md-4">
-						<div class="well">
-							<h3>
-								Usuario receptor
-							</h3>
-							<i class="text-muted">
-								Usuario que recive el artículo al finalizar el prestamo
-							</i>
-							<div v-if="loan.receiver">
-								<p>
-									Nombre: {{loan.receiver.name}} {{loan.receiver.last_name}}
-								</p>
-								<p>
-									Identificación: {{loan.receiver.identity_card}}
-								</p>
-								<p v-if="loan.receiver.student">
-									Carné: {{loan.receiver.student.license}}
-								</p>
+						<div class="panel panel-default shadow">
+							<div class="panel-heading">
+								<router-link  :to="{ name: 'usuario', params: { id: loan.authorizer.id }}" class="btn btn-xs btn-success pull-right">
+									<i class="fa fa-eye" aria-hidden="true"></i>
+									Ver
+								</router-link>
+								<h3 class="panel-title">
+									<i class="fa fa-user-o" aria-hidden="true"></i>
+									Usuario autorizador
+								</h3>
 							</div>
-							<div v-else>
-								Aún no se recibe le articulo
-							</div>	
+							<div class="panel-body">
+								<p class="text-muted">
+									Usuario que entega el artículo
+									<br>
+									{{moment(loan.departure_time).format('DD[/]MM[/]YYYY [-] hh[:]mm a')}}
+								</p>
+								<ul class="list-group">
+									<li class="list-group-item">
+										<b class="text-primary">Nombre:</b> 
+										<router-link  :to="{ name: 'usuario', params: { id: loan.authorizer.id }}">
+											{{loan.authorizer.name}} {{loan.authorizer.last_name}}
+											<i class="fa fa-external-link"></i>
+										</router-link>
+									</li> 
+									<li class="list-group-item" v-if="loan.authorizer.identity_card">
+										<b class="text-primary">
+											Cedula:
+										</b> 
+										{{loan.authorizer.identity_card}}
+									</li>
+									<li class="list-group-item" v-if="loan.authorizer.student">
+										<b class="text-primary">
+											Carné:
+										</b> 
+										{{loan.authorizer.student.license}}
+									</li>
+								</ul>
+							</div>
+						</div>
+					</div>
+					<div class="col-xs-12 col-sm-6 col-md-4">
+						<div class="panel panel-info shadow">
+							<div class="panel-heading">
+								<router-link  :to="{ name: 'usuario', params: { id: loan.user.id }}" class="btn btn-xs btn-success pull-right">
+									<i class="fa fa-eye" aria-hidden="true"></i>
+									Ver
+								</router-link>
+								<b class="panel-title">
+									<i class="fa fa-user" aria-hidden="true"></i>
+									Usuario solicitante
+								</b>
+							</div>
+							<div class="panel-body">
+								<p class="text-muted">
+									Usuario que solicita el prestamo
+									<br>
+									{{moment(loan.departure_time).format('DD[/]MM[/]YYYY [-] hh[:]mm a')}}
+								</p>
+								<ul class="list-group">
+									<li class="list-group-item">
+										<b class="text-primary">Nombre:</b> 
+										<router-link  :to="{ name: 'usuario', params: { id: loan.user.id }}">
+											{{loan.user.name}} {{loan.user.last_name}}
+											<i class="fa fa-external-link"></i>
+										</router-link>
+									</li> 
+									<li class="list-group-item" v-if="loan.user.identity_card">
+										<b class="text-primary">
+											Cedula:
+										</b> 
+										{{loan.user.identity_card}}
+									</li>
+									<li class="list-group-item" v-if="loan.user.student">
+										<b class="text-primary">
+											Carné:
+										</b> 
+										{{loan.user.student.license}}
+									</li>
+								</ul>
+							</div>
+						</div>
+					</div>
+					<div class="col-xs-12 col-sm-6 col-md-4">
+						<div class="panel panel-default shadow">
+							<div class="panel-heading">
+								<router-link  v-if="loan.receiver" :to="{ name: 'usuario', params: { id: loan.receiver.id }}" class="btn btn-xs btn-success pull-right">
+									<i class="fa fa-eye" aria-hidden="true"></i>
+									Ver
+								</router-link>
+								<h3 class="panel-title">
+									<i class="fa fa-user-o" aria-hidden="true"></i>
+									Usuario receptor
+								</h3>
+							</div>
+							<div class="panel-body" v-if="loan.receiver">
+								<p class="text-muted">
+									Usuario que recive el artículo al finalizar el prestamo
+									<br>
+									{{moment(loan.user_return_time).format('DD[/]MM[/]YYYY [-] hh[:]mm a')}}
+								</p>
+								<ul class="list-group">
+									<li class="list-group-item">
+										<b class="text-primary">Nombre:</b> 
+										<router-link  :to="{ name: 'usuario', params: { id: loan.receiver.id }}">
+											{{loan.receiver.name}} {{loan.receiver.last_name}}
+											<i class="fa fa-external-link"></i>
+										</router-link>
+									</li> 
+									<li class="list-group-item">
+										<b class="text-primary">
+											Cedula:
+										</b> 
+										{{loan.receiver.identity_card}}
+									</li>
+									<li class="list-group-item">
+										<b class="text-primary">
+											Carné:
+										</b> 
+										{{loan.receiver.student.license}}
+									</li>
+								</ul>
+							</div>
+							<div class="panel-body" v-else>
+								<b class="text-info" v-bind:class="{'text-danger':isShowableAlert(loan.return_time)}">
+									<i class="fa fa-circle-o"></i>
+									Prestamo en curso 
+									<br>
+									<small>
+										<span v-if="!isShowableAlert(loan.return_time)">
+											Quedan
+										</span>
+										<span v-else>
+											Debió terminar
+										</span>
+										{{moment(loan.return_time).fromNow(!isShowableAlert(loan.return_time))}}
+										<span v-if="!isShowableAlert(loan.return_time)">
+											de prestamo
+										</span>
+									</small>
+								</b>
+							</div>
 						</div>
 					</div>
 				</div>
+			</div>
+		</div>
+	</div>
+
+	<div style="display:none" id="loanHistory">
+		<div class="container-fluid" :listing-id="init">
+			<div class="col-xs-12">
+				<div class="panel panel-info shadow">
+					<div class="panel-heading">
+						<h3 class="panel-title">
+							<i aria-hidden="true" class="fa fa-history"></i>
+							Historial de prestamos
+						</h3>
+					</div>
+					<div class="panel-body">
+						<div class="input-group">
+							<input type="text" placeholder="Buscar en el historial" class="form-control">
+							<span class="input-group-btn">
+								<button type="button" class="btn btn-default">
+									<i class="fa fa-times"></i>
+								</button>
+								<button type="button" class="btn btn-info"><i class="fa fa-search"></i>
+									Buscar
+								</button>
+							</span>
+						</div>
+						<br>
+						<p>
+							<b>Ver:</b>
+							<br>
+							<label class="unselectable radio-inline">
+								<input type="radio" name="segment">
+								Todos los prestamos
+							</label>
+							<label class="unselectable radio-inline">
+								<input type="radio" name="segment">
+								Prestamos activos y del día
+							</label>
+							<label class="unselectable radio-inline">
+								<input type="radio" name="segment">
+								Prestamos restrasados
+							</label>
+							<label class="unselectable radio-inline">
+								<input type="radio" name="segment">
+								Prestamos con multa
+							</label>
+						</p>
+					</div>
+				</div>
+				<div class="panel panel-default shadow">
+					<table class="table table-hover">
+						<thead>
+							<tr>
+								<th>
+									Fecha de prestamo
+								</th>
+								<th>
+									Devolución prevista
+								</th>
+								<th>
+									Devolución efectiva
+								</th>
+								<th>
+									Multa
+								</th>
+								<th>
+									Elemento
+								</th>
+								<th>
+									Autizador
+								</th>
+								<th>
+									Solicitante
+								</th>
+								<th>
+									Receptor
+								</th>
+								<th>
+									
+								</th>
+							</tr>
+						</thead> 
+						<tbody>
+							<tr v-for="loan in loans">
+								<td>
+									<span class="adtitional-data" data-toggle="popover" data-trigger="hover" title="" v-bind:data-content="moment(loan.departure_time).format('DD[/]MM[/]YYYY [-] hh[:]mm a')" data-placement="bottom">
+										{{moment(loan.departure_time).calendar()}}
+									</span>
+								<td>
+									<span class="adtitional-data" data-toggle="popover" data-trigger="hover" title="" v-bind:data-content="moment(loan.return_time).format('DD[/]MM[/]YYYY [-] hh[:]mm a')" data-placement="bottom">
+										{{moment(loan.return_time).calendar()}}
+									</span>
+								</td> 
+								<td v-if="loan.user_return_time != '0000-00-00 00:00:00'">
+
+									<span class="adtitional-data" data-toggle="popover" data-trigger="hover" title="" v-bind:data-content="moment(loan.user_return_time).format('DD[/]MM[/]YYYY [-] hh[:]mm a')" data-placement="bottom">
+										{{moment(loan.user_return_time).calendar()}}
+									</span>
+								</td> 
+								<td v-else class="text-info" v-bind:class="{'text-danger':isShowableAlert(loan.return_time)}">
+									<i class="fa fa-circle-o"></i>
+									Prestamo en curso
+								</td> 
+								<td class="text-danger" v-if="loan.penalty">
+									<i style="font-size: 1.3em;" class="fa fa-times-circle-o"></i> Con multa
+								</td> 
+								<td class="text-success" v-else>
+									<i style="font-size: 1.3em;" class="fa fa-check-circle-o"></i> Sin multa
+								</td> 
+								<td>
+									<router-link class="alert-link adtitional-data" :to="{ name: 'activo', params: { id: loan.loanable.id }}" data-toggle="popover" data-trigger="hover" title="" v-bind:data-content="(loan.loanable.note)?'Nota: ' + loan.loanable.note:'Sin nota'" v-bind:data-original-title="loan.loanable.named" data-placement="bottom">
+										<b>{{loan.loanable.barcode}}</b> 
+									</router-link>
+								</td> 
+								<td>
+									<router-link class="alert-link adtitional-data" :to="{ name: 'usuario', params: { id: loan.authorizer.id }}" data-toggle="popover" data-trigger="hover" title="" v-bind:data-content="loan.authorizer.name + ' ' + loan.authorizer.last_name + ' - ' + loan.authorizer.identity_card" data-original-title="Usuario" data-placement="bottom">
+										{{loan.authorizer.name}}
+									</router-link>
+								</td> 
+								<td>
+									<router-link class="alert-link adtitional-data" :to="{ name: 'usuario', params: { id: loan.user.id }}" data-toggle="popover" data-trigger="hover" title="" v-bind:data-content="loan.user.name + ' ' + loan.user.last_name + ' - ' + loan.user.identity_card" data-original-title="Usuario" data-placement="bottom">
+										{{loan.user.name}}
+									</router-link>
+								</td> 
+								<td v-if="loan.receiver">
+									<router-link class="alert-link adtitional-data" :to="{ name: 'usuario', params: { id: loan.receiver.id }}" data-toggle="popover" data-trigger="hover" title="" v-bind:data-content="loan.receiver.name + ' ' + loan.receiver.last_name + ' - ' + loan.receiver.identity_card" data-original-title="Usuario" data-placement="bottom">
+										{{loan.receiver.name}}
+									</router-link>
+								</td>
+								<td v-else class="text-info" v-bind:class="{'text-danger':isShowableAlert(loan.return_time)}">
+									<i class="fa fa-circle-o"></i>
+									Prestamo en curso
+								</td> 
+								<td>
+									<router-link class="btn btn-primary btn-xs" :to="{ name: 'prestamo', params: { id: loan.id }}">
+										<i class="fa fa-eye"></i>
+										Ver
+									</router-link>
+									<button class="btn btn-danger btn-xs">
+										<i class="fa fa-trash-o"></i> Borrar
+									</button>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+				
 			</div>
 		</div>
 	</div>

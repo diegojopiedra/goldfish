@@ -18,6 +18,7 @@ class GeneralConfigurationSeeder extends Seeder
             'opening_hour_week'=>'07:00:00',
             'closing_hour_week'=>'18:45:00',
             'library_name'=>'Biblioteca Tacares',
+            'next_update_time'=>'2018-01-01',
             ]);
     }
 }

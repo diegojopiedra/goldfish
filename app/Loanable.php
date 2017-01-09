@@ -22,4 +22,9 @@ class Loanable extends Model
     {
         return $this->morphTo('specification');
     }
+
+    public function photos()
+    {
+        return $this->morphMany('App\Photo', 'imageable');
+    }
 }

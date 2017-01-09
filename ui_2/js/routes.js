@@ -1,5 +1,7 @@
 const wss = "http://localhost/goldfish/public/index.php/";
-Vue.config.debug = true
+const imgDir = "http://localhost/goldfish/img/";
+const defaultUserImg = "user.jpg";
+Vue.config.debug = true;
 
 String.prototype.capitalizeFirstLetter = function() {
     return this.charAt(0).toUpperCase() + this.slice(1);
@@ -55,7 +57,7 @@ const LoanPanel = {
 		  		state: 'default',
 		  		disabled: false,
 		  	},
-		  	user: new User({identification: sessionStorage.getItem('searchIdentification')}),
+		  	user: new User({identification: localStorage.getItem('searchIdentification')}),
 		  	currentLoans:[],
 		  	barcode: '',
 		  	general_cofiguration:{},
@@ -85,7 +87,7 @@ const LoanPanel = {
 	  		automaticLoan(this);
 	  	},
 	  	clearUser: function () {
-	  		sessionStorage.removeItem('searchIdentification');
+	  		localStorage.removeItem('searchIdentification');
 	  		this.user.clear();
 	  		this.searchUser.state = 'default';
 	  		this.currentLoans = [];
@@ -141,7 +143,7 @@ const LoanPanel = {
   		user: function (usr) {
   			console.log("searchUser");
   			var usrString = JSON.stringify(usr);
-  			sessionStorage.setItem("searchUser", usrString);
+  			localStorage.setItem("searchUser", usrString);
   		}
   	}
 
@@ -151,7 +153,7 @@ const Login = {
 	template: '#loginTemplate',
 	data: function () {
 		return {
-		  	email: 'farlen.davila1@gmail.com',
+		  	email: 'diego.pacheco1@ucr.ac.cr',
 		  	password: '1234',
 		  	loading: false
 		}
@@ -171,19 +173,19 @@ const Login = {
 			});
 			xhr.done(function( msg ){
 				if(msg && msg.token){
-					sessionStorage.setItem('token', msg.token);
-					sessionStorage.setItem('user', JSON.stringify(msg.user));
+					localStorage.setItem('token', msg.token);
+					localStorage.setItem('user', JSON.stringify(msg.user));
 					var date = new Date();
 					var next = date.addHours(4);
 					var expireToken = next.sqlFormat(true);
-					sessionStorage.setItem('expire', expireToken); 
+					localStorage.setItem('expire', expireToken); 
 					setTimeout(function () {
 						logout();
 					}, (4*59*60*1000));
 					toastr["success"]("Hola " + msg.user.name);
 					this.email = "";
 					user.autoFill(msg.user);
-					router.push('prestamos');
+					router.push('panel-prestamos');
 				}else{
 					toastr["error"](msg.error);
 				}
@@ -219,6 +221,9 @@ const LoanablePanel = {
 	methods:{
 		moment: function (data) {
   			return moment(data);
+  		},
+  		isShowableAlert: function (time) {
+  			return (moment(time).diff(moment()) < 0);
   		},
   		handleScroll: function(e) {
             var currentScrollPosition = e.srcElement.scrollTop;
@@ -274,7 +279,7 @@ const SearchPanel = {
 	data: function() {
 		return {
 			paginate: {},
-			user: new User(JSON.parse(sessionStorage.getItem(('user')))),
+			user: new User(JSON.parse(localStorage.getItem(('user')))),
 			resultsPerPage: (localStorage.getItem("resultsPerPage") != null)?parseInt(localStorage.getItem("resultsPerPage")):20,
 			types:[
 				{
@@ -437,6 +442,21 @@ const Dashboard = {
 		}
 	}
 }
+
+const LoanHistory = {
+	template: "#loanHistory",
+	data: function () {
+		return {
+			loans: [],
+			init: initLoanHistory(this)
+		}
+	},
+	methods: {
+  		isShowableAlert: function (time) {
+  			return (moment(time).diff(moment()) < 0);
+  		}
+	}
+}
   	
 const AllUsersManagement = { 
 	template: "#allUsersManagementTemplate",
@@ -444,11 +464,12 @@ const AllUsersManagement = {
 		return {
 			pageIndex: this.$route.params.pages,
 			page: {},
+			imgDir: imgDir,
+			defaultUserImg: defaultUserImg,
 			users_managment: usersLoad(this)
 		}
 	},
   	methods:{
-  		
 	  	loading: function() {
 	  		usersLoad(this);
 	  	  }
@@ -466,7 +487,15 @@ const SingleUser= {
 	template: "#singleUserTemplate",
 	data: function () {
 		return {
+			isStudent: false,
+			province_data: {},
+			canton_data: {},
+			district_data: {},
 			roles: [],
+			cantons: [],
+			cantons_current_province: [],
+			districts_current_canton: [],
+			general_cofiguration: [],
 			states: [],
 			user_data:{},
 			date: new Date(),
@@ -486,7 +515,7 @@ const SingleUser= {
 	  				dataType: "json",
 	  				url: wss + "users",
 	  				data:{
-	  					token: sessionStorage.getItem('token'),
+	  					token: localStorage.getItem('token'),
 	  					
 	  					name: this.user_data.name,
 	  					last_name: this.user_data.last_name,
@@ -507,7 +536,7 @@ const SingleUser= {
 	  			dataType: "json",
 	  			url: wss + "users/"+ this.$route.params.id,
 	  			data: {
-	  				token: sessionStorage.getItem('token'),
+	  				token: localStorage.getItem('token'),
 	  				
 	  				name: this.user_data.name,
 	  				last_name: this.user_data.last_name,
@@ -523,11 +552,71 @@ const SingleUser= {
 	  			}
 	  			});
 	  		}
+	  	},
+	  	setSuggestedUpdateTime: function () {
+	  		this.user_data.next_update_time = this.general_cofiguration.next_update_time;
 	  	}
   	},
   	watch: {
+  		isStudent: function (newVal) {
+  			console.log('isStudent', newVal);
+  			if(newVal){
+  				if(this.user_data.student){
+  					if(this.user_data.student.license == null){
+  						this.user_data.student = {license:''};
+  					}
+  				}
+  			}
+  			else{
+  				this.user_data.student = {license:null};
+  			}
+  		},
   		$route: function () {
   			this.loading()
+  		}, 
+  		province_data: function (new_data, old_data) {
+  			if(new_data != null){
+  				if(new_data != old_data){
+  					this.cantons_current_province = [];
+  					this.districts_current_canton = [];
+  					var parent = this;
+  					this.cantons.forEach(function(canton) {
+  						if(canton.id_province == new_data.id){
+  							parent.cantons_current_province.push(canton);
+  						}
+  					});
+  				}
+  			}
+  		},
+  		canton_data: function (new_data, old_data) {
+  			if(new_data != null){
+  				if(new_data != old_data){
+  					this.districts_current_canton = [];
+  					var parent = this;
+  					this.districts.forEach(function(district) {
+  						if(district.id_canton == new_data.id){
+  							parent.districts_current_canton.push(district);
+  						}
+  					});
+  				}
+  			}
+  		}, 
+  		district_data: function (new_data) {
+  			if(new_data != null){
+  				this.user_data.id_district = new_data.id
+  			}else{
+  				this.user_data.id_district = "";
+  			}
+  		},
+  		user_data: function (new_data) {
+  			/*if(this.user_data.id_district != new_data.id_district){
+  				var parent = this;
+  				this.districts.forEach(function (district) {
+  					if(district.id == new_data.district_id){
+  						parent.district_data = district;
+  					}
+  				})
+  			}*/
   		}
   	  }
   	}
@@ -544,6 +633,12 @@ const Loan = {
 		moment: function (data) {
   			return moment(data);
   		},
+  		isShowableAlert: function (time) {
+  			if(!this.loan.receiver){
+  				return (moment(time).diff(moment()) < 0);
+  			}
+  			return false;
+  		}
 	}
 }
   	
@@ -657,8 +752,8 @@ const DayPendingLoans = {
 var user = getUser();
 
 function getUser() {
-	if(sessionStorage.user){
-		return new User(JSON.parse(sessionStorage.user));
+	if(localStorage.user){
+		return new User(JSON.parse(localStorage.user));
 	}else{
 		return new User();
 	}
@@ -671,7 +766,7 @@ const router = new VueRouter({
 
 	  { path: '/login', alias: '/', component: Login, meta: { requiresLogout: true } },
 	  { path: '/generalConfig', component: ConfigManager, meta: { requiresAuth: true } },
-	  { path: '/prestamos', component: LoanPanel, meta: { requiresAuth: true } },
+	  { path: '/panel-prestamos', name: 'panel-prestamos', component: LoanPanel, meta: { requiresAuth: true } },
 	  { path: '/estadisticas', name: 'estadisticas', component: Statistics, meta: {requiresAuth: true}},
 	  { path: '/gestion/:page', name:'gestion', component: SearchPanel, meta: {requiresAuth: true}},
 	  { path: '/personas/:page', name: 'personas', component: AllUsersManagement, meta: {requiresAuth: true}},
@@ -681,6 +776,7 @@ const router = new VueRouter({
 	  { path: '/material-audiovisual-panel/:id', name: 'material-audiovisual-panel', component: AudiovisualMaterialPanel, meta: {requiresAuth: true}},
 	  { path: '/material-audiovisual/:page', name: 'material-audiovisual', component: AudiovisualMaterialManagment, meta: { requiresAuth: true } },
 	  { path: '/administrador', name: 'administrador', component: Dashboard, meta: { requiresAuth: true } },
+	  { path: '/historial', name: 'historial', component: LoanHistory, meta: { requiresAuth: true } },
 	  { path: '/prestamo/:id', name: 'prestamo', component: Loan, meta: { requiresAuth: true } },
 	  { path: '/activo/:id', name: 'activo', component: LoanablePanel, meta: { requiresAuth: true } },
 	  { 
@@ -708,7 +804,7 @@ router.beforeEach((to, from, next) => {
     }
   }else if(user.isLogged() && to.matched.some(record => record.meta.requiresLogout)){
   	next({
-        path: '/prestamos'
+        path: '/panel-prestamos'
     })
   } else {
     next() // make sure to always call next()!
@@ -749,15 +845,15 @@ function logout() {
 			dataType: 'json',
 			url: wss + "logout",
 			data: {
-				token: sessionStorage.getItem('token')
+				token: localStorage.getItem('token')
 			}
 		});
 
 		xhr.done(function () {
-			sessionStorage.removeItem('searchIdentification');
-			sessionStorage.removeItem('token');
-			sessionStorage.removeItem('user');
-			sessionStorage.removeItem('expire'); 
+			localStorage.removeItem('searchIdentification');
+			localStorage.removeItem('token');
+			localStorage.removeItem('user');
+			localStorage.removeItem('expire'); 
 			user.clear();
 			toastr['success']('Sesión cerrada con exito :)');
 			router.push('login');
@@ -779,7 +875,7 @@ function getLoansByDate(parent) { //se llama desde el const
 			date1_stats: parent.date1_stats,
 			date2_stats: parent.date2_stats,
 			//today: new Date("d-m-Y"),
-			token: sessionStorage.getItem('token')
+			token: localStorage.getItem('token')
 		},
 		context:parent
 	});
@@ -815,7 +911,7 @@ function getPendingsByDate(parent) { //se llama desde el const
 			date1_stats: parent.date1_stats,
 			date2_stats: parent.date2_stats,
 			//today: new Date("d-m-Y"),
-			token: sessionStorage.getItem('token')
+			token: localStorage.getItem('token')
 		},
 		context:parent
 	});
@@ -853,6 +949,16 @@ function datepicker_init(parent) {
     	autoclose: true,
     	todayBtn: "linked",
 	});
+
+	$('#datePickerAll').datepicker({
+	    language: "es",
+		maxViewMode: 2,
+	    todayHighlight: true,
+	    startDate: "yesterdays",
+    	daysOfWeekDisabled: "0",
+    	autoclose: true,
+    	todayBtn: "linked",
+	});
 	
 	$('#datePickerStats').datepicker({
 		format:'yyyy-mm-dd',
@@ -864,11 +970,7 @@ function datepicker_init(parent) {
 	});
 	
 	$('#datePicker').on('change focusout', function (evn) {
-<<<<<<< HEAD
-		console.log("$('#datePicker').on('change focusout', function (evn) {");
-=======
 		console.log('datePicker -> change focusout,  $(this).val() = ',  $(this).val());
->>>>>>> 732dc5e2d8a7c4514c07e1fca6cb5fd56ee172b2
 		if(parent != null){
 			parent.return_time = $(this).val();
 			parent.return_hour = (date.getDay() == 6)?parent.saReturn():parent.weReturn();
@@ -911,8 +1013,8 @@ $(document).ready(function () {
 	    app.modal.isOpen = true;
 	});
 	
-	if(sessionStorage.getItem('expire') != null){
-		var t = sessionStorage.getItem('expire').split(/[- :]/);
+	if(localStorage.getItem('expire') != null){
+		var t = localStorage.getItem('expire').split(/[- :]/);
 		var d = new Date(Date.UTC(t[0], t[1]-1, t[2], t[3], t[4], t[5]));
 		setTimeout(function () {
 			logout();
@@ -924,9 +1026,9 @@ $(document).ready(function () {
 	        lastDay : '[Ayer a las] h:mm a',
 	        sameDay : '[Hoy a las] h:mm a',
 	        nextDay : '[Mañana a las] h:mm a',
-	        lastWeek : '[el] dddd [pasado a la] h:mm a',
+	        lastWeek : '[El] dddd [pasado a la] h:mm a',
 	        nextWeek : 'dddd [a la] h:mm a',
-	        sameElse : 'L'
+	        sameElse : 'DD [de] MMMM h:mm a'
 	    }
 	});
 });
@@ -981,12 +1083,12 @@ function getUserData(identification, parent) {
 			dataType: 'json',
 			url: wss + "search-by-identification",
 			data: { 
-				token: sessionStorage.getItem('token'),
+				token: localStorage.getItem('token'),
 				identification: identification
 			}
 		});
 		xhr.done(function( msg ) {
-			sessionStorage.setItem('searchIdentification', identification);
+			localStorage.setItem('searchIdentification', identification);
 			console.log(msg);
 			if(msg != null && msg != '' && typeof msg.id == "number"){
 				parent.havePenalty = "El usuario se encuentra multado";
@@ -1044,7 +1146,7 @@ function getUserDataById(id, parent) {
 		dataType: 'json',
 		url: wss + "users/"+id,
 		data: {
-			token: sessionStorage.getItem('token')
+			token: localStorage.getItem('token')
 		}
 	});
 	xhr.done(function( msg ) {
@@ -1117,7 +1219,7 @@ function getCurrentLoans(parent) {
 	  	url: wss + "loan-by-id",
 	  	data: { 
 	  		id: parent.user.id,
-	  		token: sessionStorage.getItem('token')
+	  		token: localStorage.getItem('token')
 	  	}
 	});
 	xhr.done(function( msg ) {
@@ -1262,7 +1364,7 @@ function automaticLoan(parent) {
 		  		user_id: parent.user.id,
 		  		return_time: dateToSQL(parent.return_time)  + " " + parent.return_hour + ':00',
 		  		barcode: parent.barcode,
-		  		token: sessionStorage.getItem("token")
+		  		token: localStorage.getItem("token")
 		  	},
 		  	context: parent
 		});
@@ -1347,6 +1449,8 @@ function User(json) {
 	this.penality = (json && json.penality)?json.student:{};
 	this.district_id = (json && json.district_id)?json.district_id:null;
 	this.district = (json && json.district)?json.district:null;	
+	this.photo = (json && json.photo)?json.photo:null;	
+	this.photos = (json && json.photos)?json.photos:null;	
 
 	this.isLogged = function () {
 		return (this.id != null && this.id != 0);
@@ -1426,7 +1530,7 @@ function audiovisualLoad(parent) {
 		url: wss + "audiovisual-equipment",
 		data: {
 			page: parent.$route.params.page,
-			token: sessionStorage.getItem('token')
+			token: localStorage.getItem('token')
 		},
 		context: parent
 	});
@@ -1447,7 +1551,7 @@ function cartographicLoad(parent){
 		url: wss + "cartographic-material",
 		data: {
 			page: parent.$route.params.page,
-			token: sessionStorage.getItem('token')
+			token: localStorage.getItem('token')
 		},
 		context: parent
 	});
@@ -1468,7 +1572,7 @@ function threeDimensionalLoad(parent) {
 		url: wss + "three-dimensional-object",
 		data: {
 			page: parent.$route.params.page,
-			token: sessionStorage.getItem('token')
+			token: localStorage.getItem('token')
 		},
 		context: parent
 		});
@@ -1490,7 +1594,7 @@ function usersLoad(parent) {
 		url: wss + "users",
 		data: {
 			page: parent.$route.params.page,
-			token: sessionStorage.getItem('token')
+			token: localStorage.getItem('token')
 		},
 		context: parent
 	});
@@ -1512,7 +1616,7 @@ function audiovisualMaterialsLoad(parent) {
 		url: wss + "audiovisual-material",
 		data: {
 			page: parent.$route.params.page,
-			token: sessionStorage.getItem('token')
+			token: localStorage.getItem('token')
 		},
 		context: parent
 	});
@@ -1535,7 +1639,7 @@ function cartographicPanelLoad(parent){
 		dataType: "json",
 		url: wss + "bibliographic-material",
 		data:{
-			token: sessionStorage.getItem('token')
+			token: localStorage.getItem('token')
 		},
 		context: parent
 	});
@@ -1554,7 +1658,7 @@ function cartographicPanelLoad(parent){
 		dataType: 'json',
 		url: wss + "editorial",
 		data: {
-			token: sessionStorage.getItem('token')
+			token: localStorage.getItem('token')
 		},
 		context: parent
 	});
@@ -1573,7 +1677,7 @@ function cartographicPanelLoad(parent){
 		dataType: 'json',
 		url: wss + "cartographic-format",
 		data: {
-			token: sessionStorage.getItem('token')
+			token: localStorage.getItem('token')
 		},
 		context: parent
 	});
@@ -1592,7 +1696,7 @@ function cartographicPanelLoad(parent){
 	dataType: 'json',
 	url: wss + "cartographic-material",
 	data:{
-		token: sessionStorage.getItem('token'),
+		token: localStorage.getItem('token'),
 		page: parent.$route.params.id
 	},
 	context: parent
@@ -1614,7 +1718,7 @@ function audiovisualPanelLoad(parent) {
 		dataType: 'json',
 		url: wss + "type",
 		data: {
-			token: sessionStorage.getItem('token')
+			token: localStorage.getItem('token')
 		},
 		context: parent
 	});
@@ -1633,7 +1737,7 @@ function audiovisualPanelLoad(parent) {
 		dataType: 'json',
 		url: wss + "brand",
 		data: {
-			token: sessionStorage.getItem('token')
+			token: localStorage.getItem('token')
 		},
 		context: parent
 	});
@@ -1652,7 +1756,7 @@ function audiovisualPanelLoad(parent) {
 		dataType: 'json',
 		url: wss + "model",
 		data: {
-			token: sessionStorage.getItem('token')
+			token: localStorage.getItem('token')
 		},
 		context: parent
 	});
@@ -1671,7 +1775,7 @@ function audiovisualPanelLoad(parent) {
 		dataType: 'json',
 		url: wss + "state",
 		data: {
-			token: sessionStorage.getItem('token')
+			token: localStorage.getItem('token')
 		},
 		context: parent
 	});
@@ -1692,7 +1796,7 @@ function audiovisualPanelLoad(parent) {
 		dataType: 'json',
 		url: wss + "audiovisual-equipment/" + parent.$route.params.id,
 		data: {
-			token: sessionStorage.getItem('token')
+			token: localStorage.getItem('token')
 		},
 		context: parent
 	});
@@ -1713,7 +1817,7 @@ function audiovisualMaterialPanelLoad(parent) {
 		dataType: 'json',
 		url: wss + "audiovisual-format",
 		data: {
-			token: sessionStorage.getItem('token')
+			token: localStorage.getItem('token')
 		},
 		context: parent
 	});
@@ -1732,7 +1836,7 @@ function audiovisualMaterialPanelLoad(parent) {
 		dataType: 'json',
 		url: wss + "audiovisual-type",
 		data: {
-			token: sessionStorage.getItem('token')
+			token: localStorage.getItem('token')
 		},
 		context: parent
 	});
@@ -1751,7 +1855,7 @@ function audiovisualMaterialPanelLoad(parent) {
 		dataType: 'json',
 		url: wss + "audiovisual-material/" + parent.$route.params.id,
 		data: {
-			token: sessionStorage.getItem('token')
+			token: localStorage.getItem('token')
 		},
 		context: parent
 	});
@@ -1771,7 +1875,7 @@ function audiovisualMaterialPanelLoad(parent) {
 		dataType: 'json',
 		url: wss + "key-word",
 		data: {
-			token: sessionStorage.getItem('token')
+			token: localStorage.getItem('token')
 		},
 		context: parent
 	});
@@ -1785,48 +1889,58 @@ function audiovisualMaterialPanelLoad(parent) {
 }
 
 function singleUserPanelLoad(parent) {
-	var role = $.ajax({
-		method: "GET",
+	datepicker_init(parent);
+	var data = $.ajax({
+		method: "POST",
 		dataType: 'json',
-		url: wss + "role",
+		url: wss + "user-panel-resource",
 		data: {
-			token: sessionStorage.getItem('token')
+			token: localStorage.getItem('token'),
+			id: parent.$route.params.id
 		},
 		context: parent
 	});
 	
-	role.done(function (msg) {
+	data.done(function (msg) {
 		console.log(msg);
-		parent.roles = msg;
+		parent.general_cofiguration = msg.general_configuration;
+		if(msg.user.loans)
+			msg.user.loans.reverse();
+		parent.roles = msg.roles;
+		parent.user_data = msg.user;
+
+		if(parent.user_data.student)
+			parent.isStudent = true;
+
+		console.log('parent.user_data = ', parent.user_data);
+
+		parent.districts = msg.districts;
+		parent.cantons = msg.cantons;
+		parent.provinces = msg.provinces;
+
+		parent.districts.forEach(function (district) {
+			if(district.id == parent.user_data.id_district){
+				parent.district_data = district;
+				parent.cantons.forEach(function (canton) {
+					if(canton.id == district.id_canton){
+						parent.canton_data = canton;
+						parent.provinces.forEach(function (province) {
+							if(province.id == canton.id_province){
+								parent.province_data = province;
+							}
+						});
+					}
+				});
+				
+			}
+		});
+
+		//parent.district_data = 
+		
 	});
 
-	role.fail(function () {
-		toastr['error']('Al cargar los roles de usuario', 'Ha ocurrido un error');
-	});
-	
-	var user_data = $.ajax({
-		method: "GET",
-		dataType: 'json',
-		url: wss + "users/"+ parent.$route.params.id,
-		data: {
-			token: sessionStorage.getItem('token')
-		},
-		context: parent
-	});
-	
-	user_data.done(function (msg) {
-		console.log(msg);
-		parent.user_data = msg;
-	});
-	
-	user_data.fail(function () {
-		if(parent.$route.params.id == "new"){
-			parent.user_data= { "id": '', "name": "", "email": "", "created_at": "", "updated_at": "", "identity_card": '', "last_name": "", "birthdate": "", "home_phone": "", "cell_phone": "", "direction": "", "next_update_time": "", "active": 0, "role_id": '3', "role": { "id": 3, "type": "Usuario"}, "student": {}, "penalties": [] } ;
-		}else{
-			parent.user_data = {};
-			toastr['error']('Al cargar datos del usuario', 'Ha ocurrido un error');
-		}
-		
+	data.fail(function () {
+		toastr['error']('Al cargar los datos del usuario', 'Ha ocurrido un error');
 	});
 }
 
@@ -1834,7 +1948,7 @@ function initLoanPanel(parent) {
 	console.log("initLoanPanel");
 	setTimeout(function () {
 		datepicker_init(parent);
-		var searchIdentification = sessionStorage.getItem('searchIdentification');
+		var searchIdentification = localStorage.getItem('searchIdentification');
 		if(searchIdentification != null && searchIdentification != ''){
 			getUserData(searchIdentification, parent);
 		}
@@ -1847,7 +1961,7 @@ function initLoanPanel(parent) {
 		dataType: 'json',
 		url: wss + "configuration",
 		data: {
-			token: sessionStorage.getItem('token')
+			token: localStorage.getItem('token')
 		},
 		context: parent
 	});
@@ -1883,7 +1997,7 @@ function statisticsTypes(parent) {
 		dataType: 'json',
 		url: wss + "type",
 		data: {
-			token: sessionStorage.getItem('token')
+			token: localStorage.getItem('token')
 		},
 		context: parent
 	});
@@ -1904,7 +2018,7 @@ function threeDimensionalObjectPanelLoad(parent) {
 		dataType: 'json',
 		url: wss + "state",
 		data: {
-			token: sessionStorage.getItem('token')
+			token: localStorage.getItem('token')
 		},
 		context: parent
 	});
@@ -1921,7 +2035,7 @@ function threeDimensionalObjectPanelLoad(parent) {
 		dataType: 'json',
 		url: wss + "key-word",
 		data: {
-			token: sessionStorage.getItem('token')
+			token: localStorage.getItem('token')
 		},
 		context: parent
 	});
@@ -1938,7 +2052,7 @@ function threeDimensionalObjectPanelLoad(parent) {
 		dataType: 'json',
 		url: wss + "editorial",
 		data: {
-			token: sessionStorage.getItem('token')
+			token: localStorage.getItem('token')
 		},
 		context: parent
 	});
@@ -1956,7 +2070,7 @@ function threeDimensionalObjectPanelLoad(parent) {
 		dataType: 'json',
 		url: wss + "three-dimensional-object/" + parent.$route.params.id,
 		data: {
-			token: sessionStorage.getItem('token')
+			token: localStorage.getItem('token')
 		},
 		context: parent
 	});
@@ -1989,7 +2103,7 @@ function initSearchPanel(parent) {
 				pageLength: parent.resultsPerPage,
 				types: types,
 				page:parent.$route.params.page,
-				token: sessionStorage.getItem('token')
+				token: localStorage.getItem('token')
 			},
 			context: parent
 		});
@@ -2012,7 +2126,7 @@ function pendingLoansDay() {
 		dataType: "json",
 		url: wss + "pendings-by-day",
 		data:{
-			token: sessionStorage.getItem('token')
+			token: localStorage.getItem('token')
 		},
 		context: parent
 	});
@@ -2049,7 +2163,7 @@ function initLoanablePanel(parent){
 				dataType: 'json',
 				url: wss + "loanable-panel-resource",
 				data:{
-					token: sessionStorage.getItem('token'),
+					token: localStorage.getItem('token'),
 					loanable: parent.$route.params.id
 				},
 				context: parent
@@ -2101,7 +2215,7 @@ function intiDashboard(parent) {
 		dataType: 'json',
 		url: wss + "dashboard-panel-resource",
 		data:{
-			token: sessionStorage.getItem('token')
+			token: localStorage.getItem('token')
 		},
 		context: parent
 	});
@@ -2120,7 +2234,7 @@ function deleteLoanable(id, parent) {
 		dataType: 'json',
 		url: wss + "loanable/" + id,
 		data:{
-			token: sessionStorage.getItem('token')
+			token: localStorage.getItem('token')
 		},
 		context: parent
 	});
@@ -2139,7 +2253,7 @@ function initLoanPage(parent){
 		dataType: 'json',
 		url: wss + "loan/" + parent.$route.params.id,
 		data:{
-			token: sessionStorage.getItem('token')
+			token: localStorage.getItem('token')
 		},
 		context: parent
 	});
@@ -2149,6 +2263,28 @@ function initLoanPage(parent){
 		this.loan = resource;
 	});
 	loanAjax.fail(function () {
+		toastr['error']('Al cargar la información', 'Ha ocurrido un error');
+	});
+}
+
+function initLoanHistory(parent) {
+	var loansAjax = $.ajax({
+		method: "GET",
+		dataType: 'json',
+		url: wss + "loan?order=desc",
+		data:{
+			token: localStorage.getItem('token')
+		},
+		context: parent
+	});
+			
+	loansAjax.done(function (resource) {
+		this.loans = resource.data;
+		setTimeout(function() {
+			$(".adtitional-data").popover();
+		}, 500);
+	});
+	loansAjax.fail(function () {
 		toastr['error']('Al cargar la información', 'Ha ocurrido un error');
 	});
 }

@@ -7,10 +7,10 @@ use Illuminate\Http\Request;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\LoanableController;
+use App\Http\Controllers\PenaltyController;
 use App\User;
 use App\Role;
 use App\Student;
-include ("PenaltyController.php");
 use Auth;
 use JWTAuth;
 
@@ -35,6 +35,7 @@ class UserController extends Controller
             $users = User::paginate($lengthPage);
             foreach ($users as $user) {
                 $user->role;
+                $user->photos;
             }
             return $users;
         // }
@@ -72,6 +73,9 @@ class UserController extends Controller
         $user = JWTAuth::toUser($token);
         $user->role;
         $user->student;
+        if(count($user->photos)){
+            $user->photo = $user->photos[0];
+        }
         return response()->json(['token' => $token, 'user' => $user]);
     }
 
@@ -121,11 +125,20 @@ class UserController extends Controller
             $userFind->role;
             $userFind->student;
             $userFind->penalties;
+            $userFind->photos;
+            $userFind->loans;
             foreach($userFind->penalties as $penalty){
                 $penalty->loan;
                 $penalty->loan->loanable;
                 LoanableController::getRelations($penalty->loan->loanable);
             }
+
+            foreach($userFind->loans as $loan){
+                $loan->loanable;
+                $loan->penalty;
+                LoanableController::getRelations($loan->loanable);
+            }
+            $userFind->photos;
             return $userFind;
             
         }

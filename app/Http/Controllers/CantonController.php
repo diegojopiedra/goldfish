@@ -91,4 +91,15 @@ class CantonController extends Controller
     {
         //
     }
+
+    public function getBySameProvince($idCanton)
+    {
+        $provinceId = $this->show($idCanton)->id_province;
+        return $this->fromProvince($provinceId);
+    }
+
+    public function fromProvince($provinceId)
+    {
+       return Canton::where('id_province', $provinceId)->get();
+    }
 }

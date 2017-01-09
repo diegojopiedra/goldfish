@@ -1,5 +1,6 @@
 <?php
 use Illuminate\Http\Request; 
+use App\User; 
 use App\Http\Controllers\LoanableController; 
 use App\Http\Controllers\TypeController; 
 use App\Http\Controllers\BrandController; 
@@ -7,14 +8,20 @@ use App\Http\Controllers\AudiovisualModelController;
 use App\Http\Controllers\StateController; 
 use App\Http\Controllers\LoanController; 
 use App\Http\Controllers\PenaltyController; 
+use App\Http\Controllers\RoleController; 
+use App\Http\Controllers\UserController; 
+use App\Http\Controllers\ProvinceController; 
+use App\Http\Controllers\CantonController; 
+use App\Http\Controllers\DistrictController; 
+use App\Http\Controllers\GeneralConfigurationController; 
 
 Route::get('/', function () {
     return "API";
 });
-Route::resource('users','UserController');
 Route::post('login','UserController@login');
 Route::post('logout','UserController@logout');
 Route::group(['middleware' => 'jwt-auth'], function () {
+	Route::resource('users','UserController');
 	Route::resource('loanable','LoanableController');
 	Route::post('automatic-loan','LoanController@automaticLoan');
 	Route::post('search-by-identification','UserController@searchByIdentification');
@@ -56,14 +63,63 @@ Route::group(['middleware' => 'jwt-auth'], function () {
     Route::post('dashboard-panel-resource', function(Request $request){
     	return dashboardPanleResource($request);
     });
+    
+    Route::get('user-panel-resource', function(Request $request){
+    	return userPanleResource($request);
+    });
+    
+    Route::post('user-panel-resource', function(Request $request){
+    	return userPanleResource($request);
+    });
 });
 
-	function dashboardPanleResource(Request $request){
-		$respone = array();
-		$penaltyController = new PenaltyController();
-		$response['penalties'] = json_decode($penaltyController->index()->toJson());
-		return $response;
+function userPanleResource(Request $request){
+	$response = array();
+	if($request->id != 'nuevo'){
+		$userController = new UserController(); 
+		$response['user'] = $userController->show($request->id, $request);
+	}else{
+		$userController = new UserController(); 
+
+		$response['user'] = new User();
+		$response['user']->role_id = 3;
+		$response['user']->active = true;
+		$response['user']->email = '';
+		$response['user']->name = '';
+		$response['user']->last_name = '';
+		$response['user']->identity_card = '';
+		$response['user']->next_update_time = '';
+		$response['user']->home_phone = '';
+		$response['user']->cell_phone = '';
+		$response['user']->direction = '';
+		$response['user']->id_district = '';
+		$response['user']->role;
+		$response['user']->student = array('license'=>'');
+
 	}
+
+	$roleController = new RoleController(); 
+	$response['roles'] = $roleController->index();	
+	$provinceController = new ProvinceController(); 
+	$response['provinces'] = $provinceController->index();
+	$districtController = new DistrictController(); 
+	$response['districts'] = $districtController->index();
+	$cantonController = new CantonController(); 
+	$response['cantons'] = $cantonController->index();
+
+	$generalConfigurationController = new GeneralConfigurationController(); 
+	$response['general_configuration'] = $generalConfigurationController->index();
+
+
+	return $response;
+}
+
+function dashboardPanleResource(Request $request){
+	$respone = array();
+	$penaltyController = new PenaltyController();
+	$response['penalties'] = json_decode($penaltyController->index()->toJson());
+	return $response;
+}
 
  function loanablePanelResource (Request $request){
 	$response = [];
@@ -84,8 +140,6 @@ Route::group(['middleware' => 'jwt-auth'], function () {
 	return $response; 
 }
 
-Route::get('loan-test', 'LoanController@store');
-Route::get('get-all-users','UserController@getAllUsers');
 Route::resource('audiovisual-format','AudiovisualFormatController');
 Route::resource('audiovisual-type','AudiovisualMaterialTypeController');
 Route::resource('audiovisual-equipment', 'AudiovisualEquipmentController');

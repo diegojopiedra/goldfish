@@ -13,11 +13,11 @@ class CreateCantonTable extends Migration
     public function up()
     {
         Schema::create('cantons', function (Blueprint $table) {
-            $table->increments('id');
+             $table->integer('id');
              $table->string('name');
-             $table->integer('id_province')->unsigned();
+             $table->primary('id');
+             $table->integer('id_province');
              $table->foreign('id_province')->references('id')->on('provinces');
-             $table->integer('number');
              $table->timestamps();
          });
     }

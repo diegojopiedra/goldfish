@@ -109,3 +109,11 @@ input[type="radio"], input[type="checkbox"] {
 	flex: 12 1 auto;
 	padding: 10px;
 }
+
+.adtitional-data{
+  cursor: pointer;
+}
+
+.v-aling-center{
+  vertical-align: middle !important;
+}

@@ -56,5 +56,10 @@ class User extends Model implements AuthenticatableContract,
 	public function penalties(){
 		return $this->hasMany('App\Penalty');
 	}
+
+	public function photos()
+    {
+        return $this->morphMany('App\Photo', 'imageable');
+    }
 	
 }

@@ -20,6 +20,7 @@ class CreateGeneralConfigurationsTable extends Migration
             $table->time('closing_hour_week');
             $table->string('library_name');
             $table->string('theme');
+            $table->date('next_update_time');
             $table->timestamps();
             
         });
